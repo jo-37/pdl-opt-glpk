@@ -10,6 +10,7 @@ use PDL::Core::Dev;
 %hash = pdlpp_stdargs(@pack);
 $hash{LIBS}[0] .= ' -lm -lglpk ';
 $hash{OBJECT} = q{$(O_FILES)};
+$hash{MAGIC_XS} = 1;
 
 WriteMakefile(%hash);
 
