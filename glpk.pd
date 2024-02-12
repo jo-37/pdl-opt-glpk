@@ -163,7 +163,7 @@ pp_def('glpk',
 			%}
 			int lpsolver = 1;
 			int save_pb = 0;
-			int scale;
+			int scale = 16;
 			control_params par;
 			double time;
 			int ret;
