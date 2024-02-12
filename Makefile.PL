@@ -15,7 +15,7 @@ WriteMakefile(%hash);
 
 # Add genpp rule
 # add other makefile additions as required (see also ExtUtils::MakeMaker)
-sub My::postamble {
+sub MY::postamble {
 	pdlpp_postamble(@pack);
 }
 
