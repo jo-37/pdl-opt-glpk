@@ -189,8 +189,9 @@ pp_def('glpk',
 
 			ret = glpk($sense(), n, m, $P(c), nz, $P(rn), $P(cn), $P(a),
 				$P(b), $P(ctype_c), $P(freeLB), $P(lb), $P(freeUB),
-				$P(ub), $P(vartype), 0, 1, 0, scale, &par, $P(xopt),
-				$P(fopt), $P(status), $P(lambda), $P(redcosts), &time);
+				$P(ub), $P(vartype), isMIP, lpsolver, save_pb, scale, &par,
+				$P(xopt), $P(fopt), $P(status), $P(lambda),
+				$P(redcosts), &time);
 	},
 	Doc => undef
 );
