@@ -76,7 +76,7 @@ This solves an example from the GLPK documentation:
 
 This module provides an interface to GLPK, the Gnu Linear Programming
 Kit.
-It was ported from Ocatve and mimicks the Octave-to-GLPK interface.
+It was ported from Ocatve and mimics the Octave-to-GLPK interface.
 
 =head1 FUNCTIONS
 
