@@ -1,0 +1,198 @@
+our $VERSION = '0.01';
+pp_setversion($VERSION);
+$VERSION = eval $VERSION;
+
+use PDL::Exporter;
+use PDL::Types qw(ppdefs_all);
+
+pp_addhdr('
+#include <stdlib.h>
+#include <math.h>
+#include <glpk.h>
+#include "glpk_aio.h"
+
+#define CTYPE(p) ("\0FLUDS"[p])
+
+int glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
+      double *a, double *b, char *ctype, int *freeLB, double *lb,
+      int *freeUB, double *ub, int *vartype, int isMIP, int lpsolver,
+      int save_pb, int scale, const control_params *par,
+      double *xmin, double *fmin, int *status,
+      double *lambda, double *redcosts, double *time);
+
+');
+
+pp_addpm({At => 'Top'}, <<'EOD');
+use strict;
+use warnings;
+
+use constant GLP_MIN => 1;	# Octave differs from GLPK!
+use constant GLP_MAX => -1;	# Octave differs from GLPK!
+
+use constant GLP_CV => 1;
+use constant GLP_IV => 2;
+use constant GLP_BV => 3;
+
+use constant GLP_FR => 1;
+use constant GLP_LO => 2;
+use constant GLP_UP => 3;
+use constant GLP_DB => 4;
+use constant GLP_FX => 5;
+
+=encoding utf8
+
+=head1 NAME
+
+PDL::Opt::GLPK - PDL interface to the Gnu Linear Programming Kit
+
+=head1 SYNOPSIS
+
+ use PDL::OPT::GLPK;
+
+ $a = pdl('[1 1 1] [10 4 5] [2 2 6]');
+ $b = pdl('[100 600 300]');
+ $c = pdl('[10 6 4]');
+ $lb = zeroes(double, 3);
+ $ub = inf(double, 3);
+ $ctype = GLP_UP * ones(3);
+ $vtype = GLP_CV * ones(3);
+
+ glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
+	$xopt = null, $fopt = null, $status = null, $lambda = null,
+	$redcosts = null, {});
+
+This solves an example from the GLPK documentation:
+
+ Maximize
+  obj: + 10 x_1 + 6 x_2 + 4 x_3
+
+ Subject To
+  r_1: + x_3 + x_2 + x_1 <= 100
+  r_2: + 5 x_3 + 4 x_2 + 10 x_1 <= 600
+  r_3: + 6 x_3 + 2 x_2 + 2 x_1 <= 300
+
+
+=head1 DESCRIPTION
+
+This module provides an interface to GLPK, the Gnu Linear Programming
+Kit.
+It was ported from Ocatve and mimicks the Octave-to-GLPK interface.
+
+=head1 FUNCTIONS
+
+=head2 glpk
+
+ Signature (c(m); a(m, n); b(n); lb(m); ub(m); ctype(n); vtype(m);
+	int sense; [o]xopt(m); [o]fopt(); [o]status(); [o]lambda();
+	[o]redcosts(); SV *opts)
+
+Parameters: TODO, see Octave doc.
+
+This function cannot broadcast over higher dimensions.
+
+=head1 SEE ALSO
+
+L<https://docs.octave.org/latest/Linear-Programming.html>
+L<https://www.gnu.org/software/glpk/>
+
+=cut
+
+EOD
+
+pp_add_exported(qw(GLP_MIN GLP_MAX GLP_CV GLP_IV GLP_BV GLP_FR GLP_LO
+	GLP_UP GLP_DB GLP_FX));
+
+pp_bless('PDL::Opt::GLPK');
+
+pp_def('glpk',
+	Pars => 'double c(m);
+			int rn(nz);
+			int cn(nz);
+			double a(nz);
+			double b(n);
+			double lb(m);
+			double ub(m);
+			int ctype(n);
+			int vartype(m);
+			int sense();
+			byte [t]ctype_c(n);
+			int [t]freeLB(m);
+			int [t]freeUB(m);
+			double [o]xopt(m);
+			double [o]fopt();
+			int [o]status();
+			double [o]lambda(m);
+			double [o]redcosts(m);',
+	OtherPars => 'SV *param;',
+	GenericTypes => ['D'],
+	PMCode => q{
+		sub PDL::Opt::GLPK::glpk {
+			my $at = $_[1]->xchg(0, 1);
+			my $a = $at->where($at);
+			my ($rn, $cn) = $at->whichND->xchg(0,1)->dog;
+			$a = pdl(0)->append($a);
+			$rn = pdl(1)->append($rn + 1);
+			$cn = pdl(1)->append($cn + 1);
+
+			PDL::Opt::GLPK::_glpk_int($_[0], $rn, $cn, $a, @_[2..$#_]);
+		}
+	},
+	Code => q{
+			int n = $SIZE(n);
+			int m = $SIZE(m);
+			int nz = $SIZE(nz) - 1;
+
+			loop(m) %{
+				$freeLB() = ($lb() == -INFINITY);
+			%}
+
+			loop(m) %{
+				$freeUB() = ($ub() == INFINITY);
+			%}
+
+			loop(n) %{
+				$ctype_c() = CTYPE($ctype());
+			%}
+
+			int isMIP = 0;
+			loop(m) %{
+				if ($vartype() > GLP_CV) {
+					isMIP = 1;
+					break;
+				}
+			%}
+			int lpsolver = 1;
+			int save_pb = 0;
+			int scale;
+			control_params par;
+			double time;
+			int ret;
+
+			par.msglev = 1;
+			par.dual = 1;
+			par.price = 34;
+			par.itlim = INT_MAX;
+			par.outfrq = 200;
+			par.branch = 4;
+			par.btrack = 4;
+			par.presol = 1;
+			par.rtest = 34;
+			par.tmlim = INT_MAX;
+			par.outdly = 0;
+			par.tolbnd = 1e-7;
+			par.toldj = 1e-7;
+			par.tolpiv = 1e-10;
+			par.objll = -INFINITY;
+			par.objul = INFINITY;
+			par.tolint = 1e-5;
+			par.tolobj = 1e-7;
+
+			ret = glpk($sense(), n, m, $P(c), nz, $P(rn), $P(cn), $P(a),
+				$P(b), $P(ctype_c), $P(freeLB), $P(lb), $P(freeUB),
+				$P(ub), $P(vartype), 0, 1, 0, scale, &par, $P(xopt),
+				$P(fopt), $P(status), $P(lambda), $P(redcosts), &time);
+	},
+	Doc => undef
+);
+
+pp_done();  # you will need this to finish pp processing
