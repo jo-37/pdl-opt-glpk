@@ -13,14 +13,16 @@ my $lb = zeroes(3);
 my $ub = inf(3);
 my $ctype = GLP_UP * ones(3);
 my $vtype = GLP_CV * ones(3);
+my $sense = GLP_MAX;
+my %param = (msglev => 3);
 my $xopt = null;
 my $fopt = null;
 my $lambda = null;
 my $redcosts = null;
 my $status = null;
 
-glpk($c,  $a, $b, $lb, $ub, $ctype, $vtype, GLP_MAX,
-    $xopt, $fopt, $status, $lambda, $redcosts, {});
+glpk($c,  $a, $b, $lb, $ub, $ctype, $vtype, $sense,
+    $xopt, $fopt, $status, $lambda, $redcosts, \%param);
 
 my $xexp = pdl(33.3333, 66.6667, 0);
 ok all(approx $xopt, $xexp, 1e-4), 'xopt from GLPK example';

@@ -22,6 +22,12 @@ typedef struct control_params
   double tolobj;
 } control_params;
 
+struct extra_parms {
+	int scale;
+	int lpsolver;
+	int save_pb;
+};
+
 #define nullptr NULL
 #define error(...) error(0, 0, __VA_ARGS__)
 
