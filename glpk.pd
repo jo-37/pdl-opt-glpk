@@ -128,11 +128,12 @@ pp_def('glpk',
 	PMCode => q{
 		sub PDL::Opt::GLPK::glpk {
 			my $at = $_[1]->xchg(0, 1);
-			my $a = $at->where($at);
-			my ($rn, $cn) = $at->whichND->xchg(0,1)->dog;
-			$a = pdl(0)->append($a);
-			$rn = pdl(1)->append($rn + 1);
-			$cn = pdl(1)->append($cn + 1);
+			my $a = pdl(0)->append($at->where($at));
+			my $w = $at->whichND;
+			my $rn = zeroes($a);
+			my $cn = zeroes($a);
+			$rn->slice('1:-1') .= $w->slice('(0)') + 1;
+			$cn->slice('1:-1') .= $w->slice('(1)') + 1;
 
 			PDL::Opt::GLPK::_glpk_int($_[0], $rn, $cn, $a, @_[2..$#_]);
 		}
