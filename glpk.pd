@@ -89,8 +89,8 @@ It was ported from Ocatve and mimics the Octave-to-GLPK interface.
 =head2 glpk
 
  Signature (c(m); a(m, n); b(n); lb(m); ub(m); ctype(n); vtype(m);
-	int sense; [o]xopt(m); [o]fopt(); [o]status(); [o]lambda();
-	[o]redcosts(); SV *opts)
+	int sense; [o]xopt(m); [o]fopt(); [o]status(); [o]lambda(n);
+	[o]redcosts(n); SV *opts)
 
 Parameters: TODO, see Octave doc.
 
@@ -127,8 +127,8 @@ pp_def('glpk',
 			double [o]xopt(m);
 			double [o]fopt();
 			int [o]status();
-			double [o]lambda(m);
-			double [o]redcosts(m);',
+			double [o]lambda(n);
+			double [o]redcosts(n);',
 	OtherPars => 'SV *param;',
 	GenericTypes => ['D'],
 	PMCode => q{
