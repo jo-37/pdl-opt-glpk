@@ -120,7 +120,8 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
           break;
         }
 
-      glp_set_row_bnds (lp, i+1, typx, b[i], b[i]);
+	  // Fix GLP_DB
+      glp_set_row_bnds (lp, i+1, typx, typx == GLP_DB ? b[i]: -b[i], b[i]);
 
     }
 
