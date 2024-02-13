@@ -1,0 +1,61 @@
+package PDL::Opt::GLPK;
+
+__END__
+
+=encoding utf8
+
+=head1 NAME
+
+PDL::Opt::GLPK - PDL interface to the Gnu Linear Programming Kit
+
+=head1 SYNOPSIS
+
+ use PDL::OPT::GLPK;
+
+ $a = pdl('[1 1 1] [10 4 5] [2 2 6]');
+ $b = pdl('[100 600 300]');
+ $c = pdl('[10 6 4]');
+ $lb = zeroes(double, 3);
+ $ub = inf(double, 3);
+ $ctype = GLP_UP * ones(3);
+ $vtype = GLP_CV * ones(3);
+
+ glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
+	$xopt = null, $fopt = null, $status = null, $lambda = null,
+	$redcosts = null, {});
+
+This solves an example from the GLPK documentation:
+
+ Maximize
+  obj: + 10 x_1 + 6 x_2 + 4 x_3
+
+ Subject To
+  r_1: + x_3 + x_2 + x_1 <= 100
+  r_2: + 5 x_3 + 4 x_2 + 10 x_1 <= 600
+  r_3: + 6 x_3 + 2 x_2 + 2 x_1 <= 300
+
+
+=head1 DESCRIPTION
+
+This module provides an interface to GLPK, the Gnu Linear Programming
+Kit.
+It was ported from Ocatve and mimics the Octave-to-GLPK interface.
+
+=head1 FUNCTIONS
+
+=head2 glpk
+
+ Signature (c(m); a(m, n); b(n); lb(m); ub(m); ctype(n); vtype(m);
+	int sense; [o]xopt(m); [o]fopt(); [o]status(); [o]lambda(n);
+	[o]redcosts(n); SV *opts)
+
+Parameters: TODO, see Octave doc.
+
+This function cannot broadcast over higher dimensions.
+
+=head1 SEE ALSO
+
+L<https://docs.octave.org/latest/Linear-Programming.html>
+L<https://www.gnu.org/software/glpk/>
+
+=cut
