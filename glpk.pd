@@ -135,10 +135,13 @@ pp_def('glpk',
 		sub PDL::Opt::GLPK::glpk {
 			barf("glpk: need 14 arguments") if @_ != 14;
 			my $at = $_[1]->xchg(0, 1);
-			my $a = pdl(0)->append($at->where($at));
+			my $a = pdl(0)->append($at->isa('PDL::CCS::Nd') ?
+				$at->[$PDL::CCS::Nd::VALS]->slice('0:-2') :
+				$at->where($at));
+			my $nnz = $a->nelem;
 			my $w = $at->whichND;
-			my $rn = zeroes($a);
-			my $cn = zeroes($a);
+			my $rn = zeroes($nnz);
+			my $cn = zeroes($nnz);
 			$rn->slice('1:-1') .= $w->slice('(0)') + 1;
 			$cn->slice('1:-1') .= $w->slice('(1)') + 1;
 
