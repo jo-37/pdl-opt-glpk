@@ -12,14 +12,11 @@ pp_addhdr('
 #include "glpk_aio.h"
 
 #define CTYPE(p) ("\0FLUDS"[p])
-#define SETPARM(sv, key, str, type, default) { \
+#define SETPARM(sv, key, struc, type, default) { \
 		SV **entry = hv_fetch(sv, #key, strlen(#key), 0); \
-		if (entry != NULL) { \
-			type val = Sv ## type(*entry); \
-			str.key = val; \
-		} else { \
-			str.key = default; \
-		} \
+		struc.key = (entry != NULL && SvOK(*entry)) ? \
+			Sv ## type(*entry) : \
+			default; \
 	}
 
 int glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
@@ -241,7 +238,7 @@ pp_def('glpk',
 			SETPARM(param, tolint, par, NV, 1e-5);
 			SETPARM(param, tolobj, par, NV, 1e-7);
 
-			ret = glpk($sense(), n, m, $P(c), nz, $P(rn), $P(cn), $P(a),
+			ret = glpk($sense(), m, n, $P(c), nz, $P(rn), $P(cn), $P(a),
 				$P(b), $P(ctype_c), $P(freeLB), $P(lb), $P(freeUB),
 				$P(ub), $P(vartype), isMIP, xparm.lpsolver,
 				xparm.save_pb, xparm.scale, &par, $P(xopt), $P(fopt),
