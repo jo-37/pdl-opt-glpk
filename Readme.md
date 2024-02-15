@@ -4,7 +4,7 @@ PDL::Opt::GLPK - PDL interface to the Gnu Linear Programming Kit
 
 # SYNOPSIS
 
-    use PDL::OPT::GLPK;
+    use PDL::Opt::GLPK;
 
     glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
            $xopt = null, $fopt = null, $errno = null, $status = null, $lambda = null,
@@ -25,7 +25,7 @@ This is an example from the GLPK documentation.
 Solving this using `glpk`:
 
 ```perl
-use PDL::OPT::GLPK;
+use PDL::Opt::GLPK;
 
 $a = pdl('[1 1 1] [10 4 5] [2 2 6]');
 $b = pdl('[100 600 300]');
