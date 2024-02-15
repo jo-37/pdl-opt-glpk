@@ -23,12 +23,10 @@ my %WriteMakefileArgs = (
     },
     PREREQ_PM => {
         'PDL'              => '2.085',
-        #'Foo::Bar::Module' => '5.0401',
     },
     MAN3PODS => { "lib/PDL/Opt/GLPK.pod" => "blib/man3/PDL::Opt::GLPK.3pm" },
-    MAGICXS => 1,
-    #OBJECT => '$(O_FILES)',
-    OBJECT => 'GLPK.o glpk_aio.o',
+    OBJECT => '$(O_FILES)',
+    C => [qw(GLPK.c glpk_aio.c)],
     LIBS => [' -lm -lglpk '],
 );
 $WriteMakefileArgs{PM}{"lib/PDL/Opt/GLPK.pod"}  =

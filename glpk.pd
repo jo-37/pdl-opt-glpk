@@ -49,6 +49,7 @@ use constant GLP_MSG_OFF => 0;
 use constant GLP_MSG_ERR => 1;
 use constant GLP_MSG_ON => 2;
 use constant GLP_MSG_ALL => 3;
+use constant GLP_MSG_DBG => 4;
 
 use constant GLP_SF_GM => 1;
 use constant GLP_SF_EQ => 16;
@@ -60,11 +61,11 @@ use constant GLP_CV => 1;
 use constant GLP_IV => 2;
 use constant GLP_BV => 3;
 
-use constant GLP_MSG_OFF => 0 ;
-use constant GLP_MSG_ERR => 1 ;
-use constant GLP_MSG_ON => 2 ;
-use constant GLP_MSG_ALL => 3 ;
-use constant GLP_MSG_DBG => 4 ;
+use constant GLP_MSG_OFF => 0;
+use constant GLP_MSG_ERR => 1;
+use constant GLP_MSG_ON => 2;
+use constant GLP_MSG_ALL => 3;
+use constant GLP_MSG_DBG => 4;
 
 use constant GLP_PRIMAL => 1;
 use constant GLP_DUALP => 2;
@@ -204,51 +205,51 @@ pp_def('glpk',
 			int ret;
 
 			if (!SvROK($COMP(param))) {
-				croak("'param' is not a reference");
+				$CROAK("'param' is not a reference");
 			}
 			SV *ref = SvRV($COMP(param));
 			if (SvTYPE(ref) != SVt_PVHV) {
-				croak("'param' is not a hash reference");
+				$CROAK("'param' is not a hash reference");
 			}
 			HV *param = (HV*)ref;
 
 			SETPARM(param, msglev, par, IV, 1);
-			if (par.msglev < 0 || par.msglev > 3)
-    			croak ("PARAM.msglev must be 0 (no output) or 1 (error and warning messages only [default]) or 2 (normal output) or 3 (full output)");
+			if (par.msglev < 0 || par.msglev > 4)
+    			$CROAK("PARAM.msglev must be 0 (no output) or 1 (error and warning messages only [default]) or 2 (normal output) or 3 (full output)");
 
 			SETPARM(param, scale, xparm, IV, 16);
 			if (xparm.scale < 0 || xparm.scale > 128)
-				croak ("PARAM.scale must either be 128 (automatic selection of scaling options), or a bitwise or of: 1 (geometric mean scaling), 16 (equilibration scaling), 32 (round scale factors to power of two), 64 (skip if problem is well scaled");
+				$CROAK("PARAM.scale must either be 128 (automatic selection of scaling options), or a bitwise or of: 1 (geometric mean scaling), 16 (equilibration scaling), 32 (round scale factors to power of two), 64 (skip if problem is well scaled");
 
 			SETPARM(param, dual, par, IV, 1);
 			if (par.dual < 1 || par.dual > 3)
-				croak("PARAM.dual must be 1 (use two-phase primal simplex [default]) or 2 (use two-phase dual simplex) or 3 (use two-phase dual simplex, and if it fails, switch to the primal simplex)");
+				$CROAK("PARAM.dual must be 1 (use two-phase primal simplex [default]) or 2 (use two-phase dual simplex) or 3 (use two-phase dual simplex, and if it fails, switch to the primal simplex)");
 
 			SETPARM(param, price, par, IV, 34);
 			if (par.price != 17 && par.price != 34)
-				croak("PARAM.price must be 17 (textbook pricing) or 34 (steepest edge pricing [default])");
+				$CROAK("PARAM.price must be 17 (textbook pricing) or 34 (steepest edge pricing [default])");
 
 			SETPARM(param, itlim, par, IV, INT_MAX);
 			SETPARM(param, outfrq, par, IV, 200);
 			SETPARM(param, branch, par, IV, 4);
 			if (par.branch < 1 || par.branch > 5)
-				croak("PARAM.branch must be 1 (first fractional variable) or 2 (last fractional variable) or 3 (most fractional variable) or 4 (heuristic by Driebeck and Tomlin [default]) or 5 (hybrid pseudocost heuristic)");
+				$CROAK("PARAM.branch must be 1 (first fractional variable) or 2 (last fractional variable) or 3 (most fractional variable) or 4 (heuristic by Driebeck and Tomlin [default]) or 5 (hybrid pseudocost heuristic)");
 
 			SETPARM(param, btrack, par, IV, 4);
 			if (par.btrack < 1 || par.btrack > 4)
-				croak("PARAM.btrack must be 1 (depth first search) or 2 (breadth first search) or 3 (best local bound) or 4 (best projection heuristic [default]");
+				$CROAK("PARAM.btrack must be 1 (depth first search) or 2 (breadth first search) or 3 (best local bound) or 4 (best projection heuristic [default]");
 
 			SETPARM(param, presol, par, IV, 1);
 			if (par.presol < 0 || par.presol > 1)
-				croak("PARAM.presol must be 0 (do NOT use LP presolver) or 1 (use LP presolver [default])");
+				$CROAK("PARAM.presol must be 0 (do NOT use LP presolver) or 1 (use LP presolver [default])");
 
 			SETPARM(param, lpsolver, xparm, IV, 1);
 			if (xparm.lpsolver < 1 || xparm.lpsolver > 2)
-				croak("PARAM.lpsolver must be 1 (simplex method) or 2 (interior point method)");
+				$CROAK("PARAM.lpsolver must be 1 (simplex method) or 2 (interior point method)");
 
 			SETPARM(param, rtest, par, IV, 34);
 			if (par.rtest != 17 && par.rtest != 34)
-				croak("PARAM.rtest must be 17 (standard ratio test) or 34 (Harris' two-pass ratio test [default])");
+				$CROAK("PARAM.rtest must be 17 (standard ratio test) or 34 (Harris' two-pass ratio test [default])");
 
 			SETPARM(param, tmlim, par, IV, INT_MAX);
 			SETPARM(param, outdly, par, IV, 0);
@@ -268,6 +269,7 @@ pp_def('glpk',
 				$P(ub), $P(vartype), isMIP, xparm.lpsolver,
 				xparm.save_pb, xparm.scale, &par, $P(xopt), $P(fopt),
 				$P(status), $P(lambda), $P(redcosts), &time);
+
 	},
 	Doc => undef
 );

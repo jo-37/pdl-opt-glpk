@@ -14,7 +14,7 @@ my $ub = inf(4);
 my $ctype = GLP_UP * ones(3);
 my $vtype = GLP_CV * ones(4);
 my $sense = GLP_MAX;
-my %param = (msglev => 1);
+my %param = (msglev => GLP_MSG_DBG);
 my $xopt = null;
 my $fopt = null;
 my $lambda = null;
