@@ -2,6 +2,7 @@
 
 use v5.26;
 use Test2::V0 '!float';
+use Test2::Require::Module 'PDL::CCS';
 
 use PDL;
 use PDL::Opt::GLPK;
@@ -14,7 +15,6 @@ my $w2 = $w1->copy;
 $w2->slice('0') += 1;
 my $w = $w1->glue(1, $w2);
 my $a = PDL::CCS::Nd->newFromWhich($w, ones($n)->append(-ones($n)));
-#say $a->[$PDL::CCS::Nd::VALS]->slice('0:-2');
 my $b = ones $n;
 my $c = ones double, $m;
 my $lb = zeroes($m);
@@ -27,10 +27,11 @@ my $xopt = null;
 my $fopt = null;
 my $lambda = null;
 my $redcosts = null;
+my $errno = null;
 my $status = null;
 
 glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense,
-    $xopt, $fopt, $status, $lambda, $redcosts, \%param);
+    $xopt, $fopt, $errno, $status, $lambda, $redcosts, \%param);
 
 #say "status: $status";
 #say "xopt: $xopt";

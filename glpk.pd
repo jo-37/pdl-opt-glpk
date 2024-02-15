@@ -45,68 +45,89 @@ use constant GLP_UP => 3;
 use constant GLP_DB => 4;
 use constant GLP_FX => 5;
 
-=encoding utf8
+use constant GLP_MSG_OFF => 0;
+use constant GLP_MSG_ERR => 1;
+use constant GLP_MSG_ON => 2;
+use constant GLP_MSG_ALL => 3;
 
-=head1 NAME
+use constant GLP_SF_GM => 1;
+use constant GLP_SF_EQ => 16;
+use constant GLP_SF_2N => 32;
+use constant GLP_SF_SKIP => 64;
+use constant GLP_SF_AUTO => 128;
 
-PDL::Opt::GLPK - PDL interface to the Gnu Linear Programming Kit
+use constant GLP_CV => 1;
+use constant GLP_IV => 2;
+use constant GLP_BV => 3;
 
-=head1 SYNOPSIS
+use constant GLP_MSG_OFF => 0 ;
+use constant GLP_MSG_ERR => 1 ;
+use constant GLP_MSG_ON => 2 ;
+use constant GLP_MSG_ALL => 3 ;
+use constant GLP_MSG_DBG => 4 ;
 
- use PDL::OPT::GLPK;
+use constant GLP_PRIMAL => 1;
+use constant GLP_DUALP => 2;
+use constant GLP_DUAL => 3;
 
- $a = pdl('[1 1 1] [10 4 5] [2 2 6]');
- $b = pdl('[100 600 300]');
- $c = pdl('[10 6 4]');
- $lb = zeroes(double, 3);
- $ub = inf(double, 3);
- $ctype = GLP_UP * ones(3);
- $vtype = GLP_CV * ones(3);
+use constant GLP_PT_STD => 0x11;
+use constant GLP_PT_PSE => 0x22;
 
- glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
-	$xopt = null, $fopt = null, $status = null, $lambda = null,
-	$redcosts = null, {});
+use constant GLP_BR_FFV => 1;
+use constant GLP_BR_LFV => 2;
+use constant GLP_BR_MFV => 3;
+use constant GLP_BR_DTH => 4;
+use constant GLP_BR_PCH => 5;
 
-This solves an example from the GLPK documentation:
+use constant GLP_BT_DFS => 1;
+use constant GLP_BT_BFS => 2;
+use constant GLP_BT_BLB => 3;
+use constant GLP_BT_BPH => 4;
 
- Maximize
-  obj: + 10 x_1 + 6 x_2 + 4 x_3
+use constant GLP_RT_STD => 0x11;
+use constant GLP_RT_HAR => 0x22;
+use constant GLP_RT_FLIP => 0x33;
 
- Subject To
-  r_1: + x_3 + x_2 + x_1 <= 100
-  r_2: + 5 x_3 + 4 x_2 + 10 x_1 <= 600
-  r_3: + 6 x_3 + 2 x_2 + 2 x_1 <= 300
+use constant GLP_EBADB => 0x01;
+use constant GLP_ESING => 0x02;
+use constant GLP_ECOND => 0x03;
+use constant GLP_EBOUND => 0x04;
+use constant GLP_EFAIL => 0x05;
+use constant GLP_EOBJLL => 0x06;
+use constant GLP_EOBJUL => 0x07;
+use constant GLP_EITLIM => 0x08;
+use constant GLP_ETMLIM => 0x09;
+use constant GLP_ENOPFS => 0x0A;
+use constant GLP_ENODFS => 0x0B;
+use constant GLP_EROOT => 0x0C;
+use constant GLP_ESTOP => 0x0D;
+use constant GLP_EMIPGAP => 0x0E;
+use constant GLP_ENOFEAS => 0x0F;
+use constant GLP_ENOCVG => 0x10;
+use constant GLP_EINSTAB => 0x11;
+use constant GLP_EDATA => 0x12;
+use constant GLP_ERANGE => 0x13;
 
-
-=head1 DESCRIPTION
-
-This module provides an interface to GLPK, the Gnu Linear Programming
-Kit.
-It was ported from Ocatve and mimics the Octave-to-GLPK interface.
-
-=head1 FUNCTIONS
-
-=head2 glpk
-
- Signature (c(m); a(m, n); b(n); lb(m); ub(m); ctype(n); vtype(m);
-	int sense; [o]xopt(m); [o]fopt(); [o]status(); [o]lambda(n);
-	[o]redcosts(n); SV *opts)
-
-Parameters: TODO, see Octave doc.
-
-This function cannot broadcast over higher dimensions.
-
-=head1 SEE ALSO
-
-L<https://docs.octave.org/latest/Linear-Programming.html>
-L<https://www.gnu.org/software/glpk/>
-
-=cut
+use constant GLP_UNDEF => 1;
+use constant GLP_FEAS => 2;
+use constant GLP_INFEAS => 3;
+use constant GLP_NOFEAS => 4;
+use constant GLP_OPT => 5;
+use constant GLP_UNBND => 6;
 
 EOD
 
 pp_add_exported(qw(GLP_MIN GLP_MAX GLP_CV GLP_IV GLP_BV GLP_FR GLP_LO
-	GLP_UP GLP_DB GLP_FX));
+    GLP_UP GLP_DB GLP_FX GLP_MSG_OFF GLP_MSG_ERR GLP_MSG_ON GLP_MSG_ALL
+    GLP_SF_GM GLP_SF_EQ GLP_SF_2N GLP_SF_SKIP GLP_SF_AUTO GLP_CV GLP_IV
+    GLP_BV GLP_MSG_OFF GLP_MSG_ERR GLP_MSG_ON GLP_MSG_ALL GLP_MSG_DBG
+    GLP_PRIMAL GLP_DUALP GLP_DUAL GLP_PT_STD GLP_PT_PSE GLP_BR_FFV
+    GLP_BR_LFV GLP_BR_MFV GLP_BR_DTH GLP_BR_PCH GLP_BT_DFS GLP_BT_BFS
+    GLP_BT_BLB GLP_BT_BPH GLP_RT_STD GLP_RT_HAR GLP_RT_FLIP GLP_EBADB
+    GLP_ESING GLP_ECOND GLP_EBOUND GLP_EFAIL GLP_EOBJLL GLP_EOBJUL
+    GLP_EITLIM GLP_ETMLIM GLP_ENOPFS GLP_ENODFS GLP_EROOT GLP_ESTOP
+    GLP_EMIPGAP GLP_ENOFEAS GLP_ENOCVG GLP_EINSTAB GLP_EDATA GLP_ERANGE
+    GLP_UNDEF GLP_FEAS GLP_INFEAS GLP_NOFEAS GLP_OPT GLP_UNBND));
 
 pp_bless('PDL::Opt::GLPK');
 
@@ -126,6 +147,7 @@ pp_def('glpk',
 			int [t]freeUB(m);
 			double [o]xopt(m);
 			double [o]fopt();
+            int [o]errnum();
 			int [o]status();
 			double [o]lambda(n);
 			double [o]redcosts(n);',
@@ -133,7 +155,7 @@ pp_def('glpk',
 	GenericTypes => ['D'],
 	PMCode => q{
 		sub PDL::Opt::GLPK::glpk {
-			barf("glpk: need 14 arguments") if @_ != 14;
+			barf("glpk: need 15 arguments") if @_ != 15;
 			my $at = $_[1]->xchg(0, 1);
 			my $a = pdl(0)->append($at->isa('PDL::CCS::Nd') ?
 				$at->[$PDL::CCS::Nd::VALS]->slice('0:-2') :
@@ -241,8 +263,8 @@ pp_def('glpk',
 			SETPARM(param, tolint, par, NV, 1e-5);
 			SETPARM(param, tolobj, par, NV, 1e-7);
 
-			ret = glpk($sense(), m, n, $P(c), nz, $P(rn), $P(cn), $P(a),
-				$P(b), $P(ctype_c), $P(freeLB), $P(lb), $P(freeUB),
+			$errnum() = glpk($sense(), m, n, $P(c), nz, $P(rn), $P(cn),
+                $P(a), $P(b), $P(ctype_c), $P(freeLB), $P(lb), $P(freeUB),
 				$P(ub), $P(vartype), isMIP, xparm.lpsolver,
 				xparm.save_pb, xparm.scale, &par, $P(xopt), $P(fopt),
 				$P(status), $P(lambda), $P(redcosts), &time);

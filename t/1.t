@@ -19,10 +19,13 @@ my $xopt = null;
 my $fopt = null;
 my $lambda = null;
 my $redcosts = null;
+my $errno = null;
 my $status = null;
 
 glpk($c,  $a, $b, $lb, $ub, $ctype, $vtype, $sense,
-    $xopt, $fopt, $status, $lambda, $redcosts, \%param);
+    $xopt, $fopt, $errno, $status, $lambda, $redcosts, \%param);
+say "errno: $errno";
+say "status: $status";
 
 my $xexp = pdl(33.3333, 66.6667, 0, 0);
 ok all(approx $xopt, $xexp, 1e-4), 'xopt from GLPK example';
@@ -34,8 +37,10 @@ $a = identity(2);
 $b = ones(2);
 $c = -ones(2);
 $ctype = GLP_DB * ones(2);
+#$ctype = GLP_UP * ones(2);
 $vtype = GLP_CV * ones(2);
-$lb = -ones(2);
+#$lb = -ones(2);
+$lb = -inf(2);
 $ub = ones(2);
 $sense = GLP_MAX;
 %param = (msglev => 1);
@@ -43,16 +48,19 @@ $xopt = null;
 $fopt = null;
 $lambda = null;
 $redcosts = null;
+$errno = null;
 $status = null;
 
 glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense,
-    $xopt, $fopt, $status, $lambda, $redcosts, \%param);
+    $xopt, $fopt, $errno, $status, $lambda, $redcosts, \%param);
 
 #say "status: $status";
-#say "xopt: $xopt";
-#say "fopt: $fopt";
+say "xopt: $xopt";
+say "fopt: $fopt";
 #say "lambda: $lambda";
 #say "redcosts: $redcosts";
+say "errno: $errno";
+say "status: $status";
 
 ok all(approx($xopt, pdl(-1, -1))), 'xopt GLP_DB';
 ok approx($fopt, 2), 'fopt GLP_DB';
