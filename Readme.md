@@ -4,25 +4,16 @@ PDL::Opt::GLPK - PDL interface to the Gnu Linear Programming Kit
 
 # SYNOPSIS
 
-```perl
     use PDL::OPT::GLPK;
 
-    $a = pdl('[1 1 1] [10 4 5] [2 2 6]');
-    $b = pdl('[100 600 300]');
-    $c = pdl('[10 6 4]');
-    $lb = zeroes(double, 3);
-    $ub = inf(double, 3);
-    $ctype = GLP_UP * ones(3);
-    $vtype = GLP_CV * ones(3);
-
     glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
-           $xopt = null, $fopt = null, $status = null, $lambda = null,
-           $redcosts = null, {});
-```
+           $xopt = null, $fopt = null, $errno = null, $status = null, $lambda = null,
+           $redcosts = null, \%params);
 
-This solves an example from the GLPK documentation:
+# EXAMPLE
 
-```
+This is an example from the GLPK documentation.
+
     Maximize
      obj: + 10 x_1 + 6 x_2 + 4 x_3
 
@@ -30,20 +21,36 @@ This solves an example from the GLPK documentation:
      r_1: + x_3 + x_2 + x_1 <= 100
      r_2: + 5 x_3 + 4 x_2 + 10 x_1 <= 600
      r_3: + 6 x_3 + 2 x_2 + 2 x_1 <= 300
-```
 
+Solving this using `glpk`:
+
+```perl
+use PDL::OPT::GLPK;
+
+$a = pdl('[1 1 1] [10 4 5] [2 2 6]');
+$b = pdl('[100 600 300]');
+$c = pdl('[10 6 4]');
+$lb = zeroes(3);
+$ub = inf(3);
+$ctype = GLP_UP * ones(3);
+$vtype = GLP_CV * ones(3);
+
+glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
+       $xopt = null, $fopt = null, $errno = null, $status = null,
+       $lambda = null, $redcosts = null, {});
+```
 # DESCRIPTION
 
-This module provides an interface to GLPK, the Gnu Linear Programming
+This module provides an interface to GLPK, the GNU Linear Programming
 Kit.
-The interface was ported from Ocatve and mimics its GLPK interface.
+The interface was ported from Octave and mimics its GLPK interface.
 
 # FUNCTIONS
 
 ## glpk
 
     Signature (c(m); a(m, n); b(n); lb(m); ub(m); ctype(n); vtype(m);
-           int sense; [o]xopt(m); [o]fopt(); [o]status(); [o]lambda(n);
+           int sense; [o]xopt(m); [o]fopt(); [o]errno(); [o]status(); [o]lambda(n);
            [o]redcosts(n); SV *opts)
 
 Solve a linear program using the GNU GLPK library.
@@ -159,6 +166,10 @@ Input values:
         - 3 (GLP\_MSG\_ALL)
 
             Full output (includes informational messages).
+
+        - 4 (GLP\_MSG\_DBG)
+
+            Debug output.
 
     - scale (default: 16)
 

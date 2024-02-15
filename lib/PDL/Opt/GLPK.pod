@@ -6,25 +6,19 @@ __END__
 
 =head1 NAME
 
-PDL::Opt::GLPK - PDL interface to the Gnu Linear Programming Kit
+PDL::Opt::GLPK - PDL interface to the GNU Linear Programming Kit
 
 =head1 SYNOPSIS
 
  use PDL::OPT::GLPK;
 
- $a = pdl('[1 1 1] [10 4 5] [2 2 6]');
- $b = pdl('[100 600 300]');
- $c = pdl('[10 6 4]');
- $lb = zeroes(double, 3);
- $ub = inf(double, 3);
- $ctype = GLP_UP * ones(3);
- $vtype = GLP_CV * ones(3);
-
  glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
-	$xopt = null, $fopt = null, $status = null, $lambda = null,
-	$redcosts = null, {});
+	$xopt = null, $fopt = null, $errno = null, $status = null, $lambda = null,
+	$redcosts = null, \%params);
 
-This solves an example from the GLPK documentation:
+=head1 EXAMPLE
+
+This is an example from the GLPK documentation.
 
  Maximize
   obj: + 10 x_1 + 6 x_2 + 4 x_3
@@ -34,19 +28,34 @@ This solves an example from the GLPK documentation:
   r_2: + 5 x_3 + 4 x_2 + 10 x_1 <= 600
   r_3: + 6 x_3 + 2 x_2 + 2 x_1 <= 300
 
+Solving this using C<glpk>:
+
+ use PDL::OPT::GLPK;
+
+ $a = pdl('[1 1 1] [10 4 5] [2 2 6]');
+ $b = pdl('[100 600 300]');
+ $c = pdl('[10 6 4]');
+ $lb = zeroes(3);
+ $ub = inf(3);
+ $ctype = GLP_UP * ones(3);
+ $vtype = GLP_CV * ones(3);
+
+ glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
+	$xopt = null, $fopt = null, $errno = null, $status = null,
+	$lambda = null, $redcosts = null, {});
 
 =head1 DESCRIPTION
 
 This module provides an interface to GLPK, the Gnu Linear Programming
 Kit.
-The interface was ported from Ocatve and mimics its GLPK interface.
+The interface was ported from Octave and mimics its GLPK interface.
 
 =head1 FUNCTIONS
 
 =head2 glpk
 
  Signature (c(m); a(m, n); b(n); lb(m); ub(m); ctype(n); vtype(m);
-	int sense; [o]xopt(m); [o]fopt(); [o]status(); [o]lambda(n);
+	int sense; [o]xopt(m); [o]fopt(); [o]errno(); [o]status(); [o]lambda(n);
 	[o]redcosts(n); SV *opts)
 
 Solve a linear program using the GNU GLPK library.
@@ -176,6 +185,10 @@ Normal output.
 =item 3 (GLP_MSG_ALL)
 
 Full output (includes informational messages).
+
+=item 4 (GLP_MSG_DBG)
+
+Debug output.
 
 =back
 
