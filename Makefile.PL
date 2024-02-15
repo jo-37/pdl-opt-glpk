@@ -1,22 +1,59 @@
-
-# Use this as a template for the Makefile.PL for
-# any external PDL module.
-
+use 5.006;
+use strict;
+use warnings;
 use ExtUtils::MakeMaker;
-
 use PDL::Core::Dev;
-@pack = (["glpk.pd",GLPK,PDL::Opt::GLPK]);
+use Devel::CheckLib qw(check_lib_or_exit);
 
-%hash = pdlpp_stdargs(@pack);
-$hash{LIBS}[0] .= ' -lm -lglpk ';
-$hash{OBJECT} = q{$(O_FILES)};
-$hash{MAGIC_XS} = 1;
+my @pack = (["glpk.pd",'GLPK','PDL::Opt::GLPK']);
 
-WriteMakefile(%hash);
+check_lib_or_exit(lib => 'glpk', header => 'glpk.h');
 
-# Add genpp rule
-# add other makefile additions as required (see also ExtUtils::MakeMaker)
-sub MY::postamble {
-	pdlpp_postamble(@pack);
+my %WriteMakefileArgs = (
+    pdlpp_stdargs(@pack),
+    AUTHOR           => q{Jörg Sommrey <git@sommrey.de>},
+    ABSTRACT_FROM    => 'lib/PDL/Opt/GLPK.pod',
+    LICENSE          => 'gpl_3',
+    MIN_PERL_VERSION => '5.010',
+    CONFIGURE_REQUIRES => {
+        'ExtUtils::MakeMaker' => '0',
+    },
+    TEST_REQUIRES => {
+        'Test2::V0' => '0', 'Test::More' => 0
+    },
+    PREREQ_PM => {
+        'PDL'              => '2.085',
+        #'Foo::Bar::Module' => '5.0401',
+    },
+    MAN3PODS => { "lib/PDL/Opt/GLPK.pod" => "blib/man3/PDL::Opt::GLPK.3pm" },
+    MAGICXS => 1,
+    #OBJECT => '$(O_FILES)',
+    OBJECT => 'GLPK.o glpk_aio.o',
+    LIBS => [' -lm -lglpk '],
+);
+$WriteMakefileArgs{PM}{"lib/PDL/Opt/GLPK.pod"}  =
+    '$(INST_LIBDIR)/GLPK.pod';
+
+# Compatibility with old versions of ExtUtils::MakeMaker
+unless (eval { ExtUtils::MakeMaker->VERSION('6.64'); 1 }) {
+    my $test_requires = delete $WriteMakefileArgs{TEST_REQUIRES} || {};
+    @{$WriteMakefileArgs{PREREQ_PM}}{keys %$test_requires} = values %$test_requires;
 }
 
+unless (eval { ExtUtils::MakeMaker->VERSION('6.55_03'); 1 }) {
+    my $build_requires = delete $WriteMakefileArgs{BUILD_REQUIRES} || {};
+    @{$WriteMakefileArgs{PREREQ_PM}}{keys %$build_requires} = values %$build_requires;
+}
+
+delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
+    unless eval { ExtUtils::MakeMaker->VERSION('6.52'); 1 };
+delete $WriteMakefileArgs{MIN_PERL_VERSION}
+    unless eval { ExtUtils::MakeMaker->VERSION('6.48'); 1 };
+delete $WriteMakefileArgs{LICENSE}
+    unless eval { ExtUtils::MakeMaker->VERSION('6.31'); 1 };
+
+WriteMakefile(%WriteMakefileArgs);
+
+sub MY::postamble {
+    pdlpp_postamble(@pack);
+}
