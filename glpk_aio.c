@@ -30,9 +30,11 @@
 
 
 /*
- * The following subroutine was copied as-is from
- * octave-6.2.0/libinterp/dldfcn/__glpk__.cc
+ * The following subroutine was copied from
+ * octave-6.3.0/libinterp/dldfcn/__glpk__.cc
+ * Later versions don't compile as C code.
  */
+
 
 int
 glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
@@ -120,8 +122,7 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
           break;
         }
 
-	  // Fix GLP_DB
-      glp_set_row_bnds (lp, i+1, typx, typx == GLP_DB ? -b[i]: b[i], b[i]);
+      glp_set_row_bnds (lp, i+1, typx, typx == GLP_DB ? -b[i] : b[i], b[i]);
 
     }
 
@@ -258,4 +259,3 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
 
   return errnum;
 }
- 
