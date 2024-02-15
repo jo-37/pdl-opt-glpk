@@ -522,7 +522,7 @@ See COPYING.
 The Octave Manual:
 [https://docs.octave.org/latest/Linear-Programming.html](https://docs.octave.org/latest/Linear-Programming.html)
 
-The Gnu Linear Programming Kit:
+The GNU Linear Programming Kit:
 [https://www.gnu.org/software/glpk/](https://www.gnu.org/software/glpk/)
 
 The GLPK reference manual is included in the GLPK distribution.
