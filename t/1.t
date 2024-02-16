@@ -14,13 +14,13 @@ my $ub = inf(4);
 my $ctype = GLP_UP * ones(3);
 my $vtype = GLP_CV * ones(4);
 my $sense = GLP_MAX;
-my %param = (msglev => GLP_MSG_DBG);
 my $xopt = null;
 my $fopt = null;
 my $lambda = null;
 my $redcosts = null;
 my $errno = null;
 my $status = null;
+my %param = (msglev => 0);
 
 glpk($c,  $a, $b, $lb, $ub, $ctype, $vtype, $sense,
     $xopt, $fopt, $errno, $status, $lambda, $redcosts, \%param);
@@ -37,13 +37,10 @@ $a = identity(2);
 $b = ones(2);
 $c = -ones(2);
 $ctype = GLP_DB * ones(2);
-#$ctype = GLP_UP * ones(2);
 $vtype = GLP_CV * ones(2);
-#$lb = -ones(2);
 $lb = -inf(2);
 $ub = ones(2);
 $sense = GLP_MAX;
-%param = (msglev => 1);
 $xopt = null;
 $fopt = null;
 $lambda = null;
