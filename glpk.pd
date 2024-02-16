@@ -275,3 +275,8 @@ pp_def('glpk',
 );
 
 pp_done();  # you will need this to finish pp processing
+
+__DATA__
+=head1 NAME
+
+PDL::Opt::GLPK - PDL interface to the GNU Linear Programming Kit
