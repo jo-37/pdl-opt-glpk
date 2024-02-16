@@ -23,6 +23,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
+extern "C" {
 #include <time.h>
 #include <error.h>
 #include <glpk.h>
@@ -31,21 +32,23 @@
 
 /*
  * The following subroutine was copied from
- * octave-6.3.0/libinterp/dldfcn/__glpk__.cc
- * Later versions don't compile as C code.
+ * octave at libinterp/dldfcn/__glpk__.cc
  */
 
-
+//static int
 int
 glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
       double *a, double *b, char *ctype, int *freeLB, double *lb,
       int *freeUB, double *ub, int *vartype, int isMIP, int lpsolver,
-      int save_pb, int scale, const control_params *par,
-      double *xmin, double *fmin, int *status,
-      double *lambda, double *redcosts, double *time)
+      int save_pb, int scale, const control_params& par,
+      double *xmin, double& fmin, int& status,
+      double *lambda, double *redcosts, double& time)
 {
   int typx = 0;
   int errnum = 0;
+
+  time = 0.0;
+  status = -1;    // Initialize status to "bad" value
 
   clock_t t_start = clock ();
 
@@ -83,7 +86,7 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
 
       // -- Set the objective coefficient of the corresponding
       // -- structural variable.  No constant term is assumed.
-      glp_set_obj_coef(lp,i+1,c[i]);
+      glp_set_obj_coef(lp, i+1, c[i]);
 
       if (isMIP)
         glp_set_col_kind (lp, i+1, vartype[i]);
@@ -136,34 +139,34 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
     }
 
   // scale the problem data
-  if (! par->presol || lpsolver != 1)
+  if (! par.presol || lpsolver != 1)
     glp_scale_prob (lp, scale);
 
   // build advanced initial basis (if required)
-  if (lpsolver == 1 && ! par->presol)
+  if (lpsolver == 1 && ! par.presol)
     glp_adv_basis (lp, 0);
 
   // For MIP problems without a presolver, a first pass with glp_simplex
   // is required
   if ((! isMIP && lpsolver == 1)
-      || (isMIP && ! par->presol))
+      || (isMIP && ! par.presol))
     {
       glp_smcp smcp;
       glp_init_smcp (&smcp);
-      smcp.msg_lev = par->msglev;
-      smcp.meth = par->dual;
-      smcp.pricing = par->price;
-      smcp.r_test = par->rtest;
-      smcp.tol_bnd = par->tolbnd;
-      smcp.tol_dj = par->toldj;
-      smcp.tol_piv = par->tolpiv;
-      smcp.obj_ll = par->objll;
-      smcp.obj_ul = par->objul;
-      smcp.it_lim = par->itlim;
-      smcp.tm_lim = par->tmlim;
-      smcp.out_frq = par->outfrq;
-      smcp.out_dly = par->outdly;
-      smcp.presolve = par->presol;
+      smcp.msg_lev = par.msglev;
+      smcp.meth = par.dual;
+      smcp.pricing = par.price;
+      smcp.r_test = par.rtest;
+      smcp.tol_bnd = par.tolbnd;
+      smcp.tol_dj = par.toldj;
+      smcp.tol_piv = par.tolpiv;
+      smcp.obj_ll = par.objll;
+      smcp.obj_ul = par.objul;
+      smcp.it_lim = par.itlim;
+      smcp.tm_lim = par.tmlim;
+      smcp.out_frq = par.outfrq;
+      smcp.out_dly = par.outdly;
+      smcp.presolve = par.presol;
       errnum = glp_simplex (lp, &smcp);
     }
 
@@ -171,15 +174,15 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
     {
       glp_iocp iocp;
       glp_init_iocp (&iocp);
-      iocp.msg_lev = par->msglev;
-      iocp.br_tech = par->branch;
-      iocp.bt_tech = par->btrack;
-      iocp.tol_int = par->tolint;
-      iocp.tol_obj = par->tolobj;
-      iocp.tm_lim = par->tmlim;
-      iocp.out_frq = par->outfrq;
-      iocp.out_dly = par->outdly;
-      iocp.presolve = par->presol;
+      iocp.msg_lev = par.msglev;
+      iocp.br_tech = par.branch;
+      iocp.bt_tech = par.btrack;
+      iocp.tol_int = par.tolint;
+      iocp.tol_obj = par.tolobj;
+      iocp.tm_lim = par.tmlim;
+      iocp.out_frq = par.outfrq;
+      iocp.out_dly = par.outdly;
+      iocp.presolve = par.presol;
       errnum = glp_intopt (lp, &iocp);
     }
 
@@ -187,7 +190,7 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
     {
       glp_iptcp iptcp;
       glp_init_iptcp (&iptcp);
-      iptcp.msg_lev = par->msglev;
+      iptcp.msg_lev = par.msglev;
       errnum = glp_interior (lp, &iptcp);
     }
 
@@ -195,20 +198,20 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
     {
       if (isMIP)
         {
-          *status = glp_mip_status (lp);
-          *fmin = glp_mip_obj_val (lp);
+          status = glp_mip_status (lp);
+          fmin = glp_mip_obj_val (lp);
         }
       else
         {
           if (lpsolver == 1)
             {
-              *status = glp_get_status (lp);
-              *fmin = glp_get_obj_val (lp);
+              status = glp_get_status (lp);
+              fmin = glp_get_obj_val (lp);
             }
           else
             {
-              *status = glp_ipt_status (lp);
-              *fmin = glp_ipt_obj_val (lp);
+              status = glp_ipt_status (lp);
+              fmin = glp_ipt_obj_val (lp);
             }
         }
 
@@ -248,7 +251,7 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
         }
     }
 
-  *time = (clock () - t_start) / CLOCKS_PER_SEC;
+  time = (clock () - t_start) / CLOCKS_PER_SEC;
 
   glp_delete_prob (lp);
   // Request that GLPK free all memory resources.
@@ -258,4 +261,6 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
   glp_free_env ();
 
   return errnum;
+}
+
 }

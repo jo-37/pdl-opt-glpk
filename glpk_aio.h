@@ -28,7 +28,6 @@ struct extra_parms {
 	int save_pb;
 };
 
-#define nullptr NULL
 #define error(...) error(0, 0, __VA_ARGS__)
 
 #endif

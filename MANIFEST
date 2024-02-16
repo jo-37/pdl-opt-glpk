@@ -1,11 +1,12 @@
 Changes
 glpk.pd
-glpk_aio.c
+glpk_aio.cc
 glpk_aio.h
 lib/PDL/Opt/GLPK.pod
 Makefile.PL
 MANIFEST			This list of files
 README
+COPYING
 Readme.md
 t/00-load.t
 t/manifest.t
