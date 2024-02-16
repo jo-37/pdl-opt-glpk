@@ -21,7 +21,7 @@ my $lb = zeroes($m);
 my $ub = $m * ones($m);
 my $ctype = GLP_LO * ones($n);
 my $vtype = GLP_CV * ones($m);
-my $sense = GLP_MAX;
+my $sense = GLPX_MAX;
 my %param = (msglev => 1);
 my $xopt = null;
 my $fopt = null;

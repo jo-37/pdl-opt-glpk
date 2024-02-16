@@ -40,7 +40,7 @@ Solving this using C<glpk>:
  $ctype = GLP_UP * ones(3);
  $vtype = GLP_CV * ones(3);
 
- glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
+ glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLPX_MAX,
 	$xopt = null, $fopt = null, $errno = null, $status = null,
 	$lambda = null, $redcosts = null, {});
 
@@ -151,8 +151,8 @@ A binary variable.
 
 =item sense
 
-If sense is 1, the problem is a minimization. If sense is -1, the problem is
-a maximization.
+If sense is 1 (GLPX_MIN), the problem is a minimization. If sense is -1
+(GLPX_MAX), the problem is a maximization.
 
 =item param
 

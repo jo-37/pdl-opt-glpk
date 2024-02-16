@@ -32,8 +32,8 @@ pp_addpm({At => 'Top'}, <<'EOD');
 use strict;
 use warnings;
 
-use constant GLP_MIN => 1;	# Octave differs from GLPK!
-use constant GLP_MAX => -1;	# Octave differs from GLPK!
+use constant GLPX_MIN => 1;	# Octave differs from GLPK!
+use constant GLPX_MAX => -1;	# Octave differs from GLPK!
 
 use constant GLP_CV => 1;
 use constant GLP_IV => 2;
@@ -118,7 +118,15 @@ use constant GLP_UNBND => 6;
 
 EOD
 
-pp_add_exported(qw(GLP_MIN GLP_MAX GLP_CV GLP_IV GLP_BV GLP_FR GLP_LO
+pp_addpm({At => 'Bot'}, <<'EOD');
+broadcast_define
+    'glpk_bc(c(m);a(m,n);b(n);lb(m);ub(m);ctype(n);vtype(m);sense();' .
+    '[o]xopt(m);[o]fopt();[o]errno();[o]status();[o]lambda(n);[o]redcosts(n)),
+    NOtherPars => 1',
+    over {glpk(@_)};
+EOD
+
+pp_add_exported(qw(GLPX_MIN GLPX_MAX GLP_CV GLP_IV GLP_BV GLP_FR GLP_LO
     GLP_UP GLP_DB GLP_FX GLP_MSG_OFF GLP_MSG_ERR GLP_MSG_ON GLP_MSG_ALL
     GLP_SF_GM GLP_SF_EQ GLP_SF_2N GLP_SF_SKIP GLP_SF_AUTO GLP_CV GLP_IV
     GLP_BV GLP_MSG_OFF GLP_MSG_ERR GLP_MSG_ON GLP_MSG_ALL GLP_MSG_DBG

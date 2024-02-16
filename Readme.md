@@ -136,8 +136,8 @@ Input values:
 
 - sense
 
-    If sense is 1, the problem is a minimization. If sense is -1, the problem is
-    a maximization.
+    If sense is 1 (GLPX_MIN), the problem is a minimization. If sense
+	is -1 (GLPX_MAX), the problem is a maximization.
 
 - param
 
