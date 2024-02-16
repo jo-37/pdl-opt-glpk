@@ -156,9 +156,9 @@ a maximization.
 
 =item param
 
-A structure containing the following parameters used to define the behavior
-of solver. Missing elements in the structure take on default values, so you
-only need to set the elements that you wish to change from the default.
+A hash reference with any of following keys used to define the behavior
+of solver. Missing keys take on default values, so you
+only need to set the values that you wish to change from the default.
 
 Integer parameters:
 
