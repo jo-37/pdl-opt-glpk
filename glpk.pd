@@ -148,7 +148,7 @@ pp_def('glpk',
 			int [t]freeUB(m);
 			double [o]xopt(m);
 			double [o]fopt();
-            int [o]errnum();
+			int [o]errnum();
 			int [o]status();
 			double [o]lambda(n);
 			double [o]redcosts(n);',
