@@ -5,7 +5,7 @@ $VERSION = eval $VERSION;
 use PDL::Exporter;
 use PDL::Types qw(ppdefs_all);
 
-pp_addhdr('
+pp_addhdr(<<'EOD');
 #include <stdlib.h>
 #include <math.h>
 #include <glpk.h>
@@ -25,8 +25,7 @@ int glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
       int save_pb, int scale, const control_params *par,
       double *xmin, double *fmin, int *status,
       double *lambda, double *redcosts, double *time);
-
-');
+EOD
 
 pp_addpm({At => 'Top'}, <<'EOD');
 use strict;

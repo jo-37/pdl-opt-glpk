@@ -26,7 +26,6 @@ my %WriteMakefileArgs = (
     },
     MAN3PODS => { "lib/PDL/Opt/GLPK.pod" => "blib/man3/PDL::Opt::GLPK.3pm" },
     C => [qw(GLPK.c glpk_aio.cc)],
-    MAGICXS => 1,
     OBJECT => '$(O_FILES)',
     LIBS => [' -lm -lglpk '],
 );
