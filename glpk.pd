@@ -7,6 +7,7 @@ use PDL::Types qw(ppdefs_all);
 
 pp_addhdr(<<'EOD');
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
 #include <glpk.h>
 #include "glpk_aio.h"
@@ -119,10 +120,12 @@ EOD
 
 pp_addpm({At => 'Bot'}, <<'EOD');
 broadcast_define
-    'glpk_bc(c(m);a(m,n);b(n);lb(m);ub(m);ctype(n);vtype(m);sense();' .
-    '[o]xopt(m);[o]fopt();[o]errno();[o]status();[o]lambda(n);[o]redcosts(n)),
+    'glpk_bc(c(m);a(m,n);b(n);lb(m);ub(m);ctype(n);vtype(m);sense(1);' .
+    '[o]xopt(m);[o]fopt(1);[o]errno(1);[o]status(1);[o]lambda(n);[o]redcosts(n)),
     NOtherPars => 1',
-    over {glpk(@_)};
+    over {
+		glpk(@_);
+	};
 EOD
 
 pp_add_exported(qw(GLPX_MIN GLPX_MAX GLP_CV GLP_IV GLP_BV GLP_FR GLP_LO
@@ -180,6 +183,7 @@ pp_def('glpk',
 		}
 	},
 	Code => q{
+			broadcastloop %{ %}
 			/*
 			 * This code was ported from Octave sources in
 			 * libinterp/dldfcn/__glpk__.cc
@@ -187,7 +191,6 @@ pp_def('glpk',
 			int n = $SIZE(n);
 			int m = $SIZE(m);
 			int nz = $SIZE(nz) - 1;
-
 			int isMIP = 0;
 			loop(m) %{
 				$freeLB() = ($lb() == -INFINITY);
