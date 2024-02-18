@@ -138,7 +138,7 @@ pp_add_exported(qw(GLPX_MIN GLPX_MAX GLP_CV GLP_IV GLP_BV GLP_FR GLP_LO
     GLP_ESING GLP_ECOND GLP_EBOUND GLP_EFAIL GLP_EOBJLL GLP_EOBJUL
     GLP_EITLIM GLP_ETMLIM GLP_ENOPFS GLP_ENODFS GLP_EROOT GLP_ESTOP
     GLP_EMIPGAP GLP_ENOFEAS GLP_ENOCVG GLP_EINSTAB GLP_EDATA GLP_ERANGE
-    GLP_UNDEF GLP_FEAS GLP_INFEAS GLP_NOFEAS GLP_OPT GLP_UNBND));
+    GLP_UNDEF GLP_FEAS GLP_INFEAS GLP_NOFEAS GLP_OPT GLP_UNBND glpk_bc));
 
 pp_bless('PDL::Opt::GLPK');
 
@@ -183,7 +183,9 @@ pp_def('glpk',
 		}
 	},
 	Code => q{
+			/* Cannot broadcast */
 			broadcastloop %{ %}
+
 			/*
 			 * This code was ported from Octave sources in
 			 * libinterp/dldfcn/__glpk__.cc

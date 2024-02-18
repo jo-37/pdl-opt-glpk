@@ -46,7 +46,7 @@ Solving this using C<glpk>:
 
 =head1 DESCRIPTION
 
-This module provides an interface to GLPK, the Gnu Linear Programming
+This module provides an interface to GLPK, the GNU Linear Programming
 Kit.
 The interface was ported from Octave and mimics its GLPK interface.
 
@@ -578,9 +578,23 @@ Problem has no unbounded solution.
 
 =back
 
-=head1 RESTRICTIONS
+=head2 glpk_bc
 
-This function cannot broadcast over higher dimensions.
+This is a wrapper for C<glpk> that takes the same arguments, with two
+exceptions:
+
+=over
+
+=item *
+
+It is capable of broadcasting over higher dimensions.
+
+=item *
+
+The coefficient matrix C<a> must be a true ndarray and cannot be a
+L<PDL::CCS::Nd> sparse matrix.
+
+=back
 
 =head1 AUTHOR
 

@@ -1,6 +1,6 @@
 # NAME
 
-PDL::Opt::GLPK - PDL interface to the Gnu Linear Programming Kit
+PDL::Opt::GLPK - PDL interface to the GNU Linear Programming Kit
 
 # SYNOPSIS
 
@@ -136,14 +136,14 @@ Input values:
 
 - sense
 
-    If sense is 1 (GLPX_MIN), the problem is a minimization. If sense
-	is -1 (GLPX_MAX), the problem is a maximization.
+    If sense is 1 (GLPX\_MIN), the problem is a minimization. If sense is -1
+    (GLPX\_MAX), the problem is a maximization.
 
 - param
 
     A hash reference with any of following keys used to define the behavior
-	of solver. Missing keys take on default values, so you only need to
-    set the values that you wish to change from the default.
+    of solver. Missing keys take on default values, so you
+    only need to set the values that you wish to change from the default.
 
     Integer parameters:
 
@@ -501,9 +501,14 @@ Output values:
 
         Problem has no unbounded solution.
 
-# RESTRICTIONS
+## glpk\_bc
 
-This function cannot broadcast over higher dimensions.
+This is a wrapper for `glpk` that takes the same arguments, with two
+exceptions:
+
+- It is capable of broadcasting over higher dimensions.
+- The coefficient matrix `a` must be a true ndarray and cannot be a
+[PDL::CCS::Nd](https://metacpan.org/pod/PDL%3A%3ACCS%3A%3ANd) sparse matrix.
 
 # AUTHOR
 
