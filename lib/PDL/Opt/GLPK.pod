@@ -79,7 +79,7 @@ Input values:
 
 A ndarray containing the objective function coefficients.
 
-=item A
+=item a
 
 A ndarray containing the constraints coefficients.
 The coefficients may be given as a L<PDL::CCS::Nd> sparse matrix as

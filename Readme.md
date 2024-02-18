@@ -72,7 +72,7 @@ Input values:
 
     A ndarray containing the objective function coefficients.
 
-- A
+- a
 
     A ndarray containing the constraints coefficients.
     The coefficients may be given as a [PDL::CCS::Nd](https://metacpan.org/pod/PDL%3A%3ACCS%3A%3ANd) sparse matrix as
