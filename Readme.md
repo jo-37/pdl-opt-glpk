@@ -64,6 +64,10 @@ The LP can be of the form
       x >= LB
       x <= UB
 
+The coeffient matrix `a` must be 2-d, though broadcasting over higher
+dimensions is possible for other arguments.
+See ["glpk\_bc"](#glpk_bc) for an alternative.
+
 ### Arguments
 
 Input values:
@@ -503,10 +507,11 @@ Output values:
 
 ## glpk\_bc
 
-This is a wrapper for `glpk` that takes the same arguments, with two
-exceptions:
+This is a wrapper for `glpk` that takes the same arguments, but has two
+differences:
 
-- It is capable of broadcasting over higher dimensions.
+- It is capable of broadcasting over higher dimensions of the coefficient
+matrix `a`.
 - The coefficient matrix `a` must be a true ndarray and cannot be a
 [PDL::CCS::Nd](https://metacpan.org/pod/PDL%3A%3ACCS%3A%3ANd) sparse matrix.
 

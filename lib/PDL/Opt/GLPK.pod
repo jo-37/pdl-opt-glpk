@@ -69,6 +69,10 @@ The LP can be of the form
    x >= LB
    x <= UB
 
+The coeffient matrix C<a> must be 2-d, though broadcasting over higher
+dimensions is possible for other arguments.
+See L</glpk_bc> for an alternative.
+
 =head3 Arguments
 
 Input values:
@@ -580,14 +584,15 @@ Problem has no unbounded solution.
 
 =head2 glpk_bc
 
-This is a wrapper for C<glpk> that takes the same arguments, with two
-exceptions:
+This is a wrapper for C<glpk> that takes the same arguments, but has two
+differences:
 
 =over
 
 =item *
 
-It is capable of broadcasting over higher dimensions.
+It is capable of broadcasting over higher dimensions of the coefficient
+matrix C<a>.
 
 =item *
 

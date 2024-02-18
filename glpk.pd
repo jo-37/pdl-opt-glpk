@@ -167,7 +167,7 @@ pp_def('glpk',
 	PMCode => q{
 		sub PDL::Opt::GLPK::glpk {
 			barf("glpk: need 15 arguments") if @_ != 15;
-			barf("cannot broadcast") if $_[1]->ndims > 2;
+			barf("cannot broadcast over 'a'") if $_[1]->ndims > 2;
 			my $at = $_[1]->xchg(0, 1);
 			my $a = pdl(0)->append($at->isa('PDL::CCS::Nd') ?
 				$at->[$PDL::CCS::Nd::VALS]->slice('0:-2') :
