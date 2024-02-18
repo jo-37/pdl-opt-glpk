@@ -183,9 +183,6 @@ pp_def('glpk',
 		}
 	},
 	Code => q{
-			/* Cannot broadcast */
-			broadcastloop %{ %}
-
 			/*
 			 * This code was ported from Octave sources in
 			 * libinterp/dldfcn/__glpk__.cc
