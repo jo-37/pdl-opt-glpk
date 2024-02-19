@@ -52,14 +52,6 @@ $status = null;
 glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense,
     $xopt, $fopt, $errno, $status, $lambda, $redcosts, \%param);
 
-#say "status: $status";
-#say "xopt: $xopt";
-#say "fopt: $fopt";
-#say "lambda: $lambda";
-#say "redcosts: $redcosts";
-#say "errno: $errno";
-#say "status: $status";
-
 ok all(approx($xopt, pdl(-1, -1))), 'xopt GLP_DB';
 ok approx($fopt, 2), 'fopt GLP_DB';
 
