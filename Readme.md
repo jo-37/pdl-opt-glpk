@@ -480,29 +480,31 @@ Output values:
 
 # EXAMPLES
 
+## A standard case
+
 A modified example from the GLPK documentation, with an extra variable
 to avoid a square matrix:
 ```
     Maximize
-     obj: + 10 x_1 + 6 x_2 + 4 x_3
+     obj: + 10 x_1 + 6 x_2 + 4 x_3 - x_4
 
     Subject To
-     r_1: + x_3 + x_2 + x_1 <= 100
-     r_2: + 5 x_3 + 4 x_2 + 10 x_1 <= 600
-     r_3: + 6 x_3 + 2 x_2 + 2 x_1 <= 300
+     r_1: + x_4 + x_3 + x_2 + x_1 <= 100
+     r_2: + x_4 + 5 x_3 + 4 x_2 + 10 x_1 <= 600
+     r_3: + x_4 + 6 x_3 + 2 x_2 + 2 x_1 <= 300
 ```
 The solution is straightforward:
 ```perl
 use PDL;
 use PDL::Opt::GLPK;
 
-$a = pdl([[1, 1, 1], [10, 4, 5], [2, 2, 6]]);
+$a = pdl([[1, 1, 1, 1], [10, 4, 5, 1], [2, 2, 6, 1]]);
 $b = pdl([100, 600, 300]);
-$c = pdl([10, 6, 4]);
-$lb = zeroes(3);
-$ub = inf(3);
+$c = pdl([10, 6, 4, -1]);
+$lb = zeroes(4);
+$ub = inf(4);
 $ctype = pdl([GLP_UP, GLP_UP, GLP_UP]);
-$vtype = pdl([GLP_CV, GLP_CV, GLP_CV]);
+$vtype = pdl([GLP_CV, GLP_CV, GLP_CV, GLP_CV]);
 
 glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLPX_MAX,
    $xopt = null, $fopt = null, $errno = null, $status = null,
@@ -516,6 +518,9 @@ glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLPX_MAX,
 # $fopt:
 # [ 733.33333]
 ```
+
+## Broadcasting
+
 Multiple problems on the same coefficients may be solved simultaneously.
 Some care must be taken when all combinations of multiple arguments are
 requested.
