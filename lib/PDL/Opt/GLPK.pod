@@ -16,34 +16,6 @@ PDL::Opt::GLPK - PDL interface to the GNU Linear Programming Kit
 	$xopt = null, $fopt = null, $errno = null, $status = null, $lambda = null,
 	$redcosts = null, \%params);
 
-=head1 EXAMPLE
-
-This is an example from the GLPK documentation.
-
- Maximize
-  obj: + 10 x_1 + 6 x_2 + 4 x_3
-
- Subject To
-  r_1: + x_3 + x_2 + x_1 <= 100
-  r_2: + 5 x_3 + 4 x_2 + 10 x_1 <= 600
-  r_3: + 6 x_3 + 2 x_2 + 2 x_1 <= 300
-
-Solving this using C<glpk>:
-
- use PDL::Opt::GLPK;
-
- $a = pdl('[1 1 1] [10 4 5] [2 2 6]');
- $b = pdl('[100 600 300]');
- $c = pdl('[10 6 4]');
- $lb = zeroes(3);
- $ub = inf(3);
- $ctype = GLP_UP * ones(3);
- $vtype = GLP_CV * ones(3);
-
- glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLPX_MAX,
-	$xopt = null, $fopt = null, $errno = null, $status = null,
-	$lambda = null, $redcosts = null, {});
-
 =head1 DESCRIPTION
 
 This module provides an interface to GLPK, the GNU Linear Programming
@@ -69,9 +41,8 @@ The LP can be of the form
    x >= LB
    x <= UB
 
-The coeffient matrix C<a> must be 2-d, though broadcasting over higher
+The coefficient matrix C<a> must be 2-d, though broadcasting over higher
 dimensions is possible for other arguments.
-See L</glpk_bc> for an alternative.
 
 =head3 Arguments
 
@@ -150,6 +121,7 @@ An integer variable.
 =item 3 (GLP_BV)
 
 A binary variable.
+Lower and upper bound are ignored and set to zero resp. one.
 
 =back
 
@@ -246,17 +218,17 @@ Use two-phase dual simplex.
 
 =back
 
-=item price (default: 34)
+=item price (default: 0x22)
 
 Pricing option (for both primal and dual simplex):
 
 =over
 
-=item 17 (GLP_PT_STD)
+=item 0x11 (GLP_PT_STD)
 
 Textbook pricing.
 
-=item 34 (GLP_PT_PSE)
+=item 0x22 (GLP_PT_PSE)
 
 Steepest edge pricing.
 
@@ -347,7 +319,7 @@ Interior point method.
 
 =back
 
-=item rtest (default: 34)
+=item rtest (default: 0x22)
 
 Ratio test technique:
 
@@ -582,24 +554,120 @@ Problem has no unbounded solution.
 
 =back
 
-=head2 glpk_bc
+=head1 EXAMPLES
 
-This is a wrapper for C<glpk> that takes the same arguments, but has two
-differences:
+A modified example from the GLPK documentation, with an extra variable
+to avoid a square matrix:
 
-=over
+ Maximize
+  obj: + 10 x_1 + 6 x_2 + 4 x_3
 
-=item *
+ Subject To
+  r_1: + x_3 + x_2 + x_1 <= 100
+  r_2: + 5 x_3 + 4 x_2 + 10 x_1 <= 600
+  r_3: + 6 x_3 + 2 x_2 + 2 x_1 <= 300
 
-It is capable of broadcasting over higher dimensions of the coefficient
-matrix C<a>.
+The solution is straightforward:
 
-=item *
+ use PDL;
+ use PDL::Opt::GLPK;
 
-The coefficient matrix C<a> must be a true ndarray and cannot be a
-L<PDL::CCS::Nd> sparse matrix.
+ $a = pdl([[1, 1, 1], [10, 4, 5], [2, 2, 6]]);
+ $b = pdl([100, 600, 300]);
+ $c = pdl([10, 6, 4]);
+ $lb = zeroes(3);
+ $ub = inf(3);
+ $ctype = pdl([GLP_UP, GLP_UP, GLP_UP]);
+ $vtype = pdl([GLP_CV, GLP_CV, GLP_CV]);
 
-=back
+ glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLPX_MAX,
+	$xopt = null, $fopt = null, $errno = null, $status = null,
+	$lambda = null, $redcosts = null, {});
+
+ # $xopt:
+ # [
+ #   [ 33.333333  66.666667          0          0]
+ # ]
+
+ # $fopt:
+ # [ 733.33333]
+
+Multiple problems on the same coefficients may be solved simultaneously.
+Some care must be taken when all combinations of multiple arguments are
+requested.
+
+The base problem:
+
+ Maximize
+  obj: + y_1 + y_2 + y_3 + y_4
+
+ Subject To
+  r_1: - y_2 + y_1 >= 1
+  r_2: - y_3 + y_2 >= 1
+  r_3: - y_4 + y_3 >= 1
+
+ Bounds
+  0 <= y_1 <= 4
+  0 <= y_2 <= 4
+  0 <= y_3 <= 4
+  0 <= y_4 <= 4
+
+ Generals
+  y_1
+  y_2
+  y_3
+  y_4
+
+Looking for the objective function's minimum I<and> maximum with both
+lower I<and> upper bound constraints:
+
+ use PDL;
+ use PDL::Opt::GLPK;
+
+ my $a = pdl(
+     [[1, -1, 0, 0],
+      [0, 1, -1, 0],
+      [0, 0, 1, -1]]);
+ my $b = pdl([1, 1, 1]);
+ my $c = pdl([1, 1, 1, 1]);
+ my $lb = pdl([0, 0, 0, 0]);
+ my $ub = pdl([4, 4, 4, 4]);
+
+ # dims: 3, 2 - loop over lower and upper bounds
+ my $ctype = pdl([[GLP_LO, GLP_LO, GLP_LO],[GLP_UP, GLP_UP, GLP_UP]]);
+
+ my $vtype = (GLP_IV * ones(4));
+
+ # dims: 1, 2 - extra loop over min and max
+ my $sense = pdl [[GLPX_MAX], [GLPX_MIN]];
+
+ my $xopt = null;
+ my $fopt = null;
+ my $errno = null;
+ my $status = null;
+ my $lambda = null;
+ my $redcosts = null;
+
+ glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt,
+    $errno, $status, $lambda, $redcosts, {});
+
+ # $xopt:
+ # [
+ #  [
+ #   [4 3 2 1]
+ #   [4 4 4 4]
+ #  ]
+ #  [
+ #   [3 2 1 0]
+ #   [0 0 0 0]
+ #  ]
+ # ]
+ #
+ # $fopt:
+ # [
+ #  [10 16]
+ #  [ 6  0]
+ # ]
 
 =head1 AUTHOR
 

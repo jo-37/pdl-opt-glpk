@@ -14,7 +14,7 @@ my $lb = zeroes(4);
 my $ub = inf(4);
 my $ctype = GLP_UP * ones(3);
 my $vtype = GLP_CV * ones(4);
-my $sense = GLPX_MAX;
+my $sense = pdl([GLPX_MAX]);
 my $xopt = null;
 my $fopt = null;
 my $lambda = null;
@@ -25,8 +25,8 @@ my %param = (msglev => 0);
 
 glpk($c,  $a, $b, $lb, $ub, $ctype, $vtype, $sense,
     $xopt, $fopt, $errno, $status, $lambda, $redcosts, \%param);
-say "errno: $errno";
-say "status: $status";
+say $xopt;
+say $fopt;
 
 my $xexp = pdl(33.3333, 66.6667, 0, 0);
 ok all(approx $xopt, $xexp, 1e-4), 'xopt from GLPK example';
@@ -41,7 +41,7 @@ $ctype = GLP_DB * ones(2);
 $vtype = GLP_CV * ones(2);
 $lb = -inf(2);
 $ub = ones(2);
-$sense = GLPX_MAX;
+$sense = pdl([GLPX_MAX]);
 $xopt = null;
 $fopt = null;
 $lambda = null;

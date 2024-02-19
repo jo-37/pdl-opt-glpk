@@ -10,35 +10,7 @@ PDL::Opt::GLPK - PDL interface to the GNU Linear Programming Kit
            $xopt = null, $fopt = null, $errno = null, $status = null, $lambda = null,
            $redcosts = null, \%params);
 
-# EXAMPLE
 
-This is an example from the GLPK documentation.
-
-    Maximize
-     obj: + 10 x_1 + 6 x_2 + 4 x_3
-
-    Subject To
-     r_1: + x_3 + x_2 + x_1 <= 100
-     r_2: + 5 x_3 + 4 x_2 + 10 x_1 <= 600
-     r_3: + 6 x_3 + 2 x_2 + 2 x_1 <= 300
-
-Solving this using `glpk`:
-
-```perl
-use PDL::Opt::GLPK;
-
-$a = pdl('[1 1 1] [10 4 5] [2 2 6]');
-$b = pdl('[100 600 300]');
-$c = pdl('[10 6 4]');
-$lb = zeroes(3);
-$ub = inf(3);
-$ctype = GLP_UP * ones(3);
-$vtype = GLP_CV * ones(3);
-
-glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
-       $xopt = null, $fopt = null, $errno = null, $status = null,
-       $lambda = null, $redcosts = null, {});
-```
 # DESCRIPTION
 
 This module provides an interface to GLPK, the GNU Linear Programming
@@ -56,17 +28,16 @@ The interface was ported from Octave and mimics its GLPK interface.
 Solve a linear program using the GNU GLPK library.
 
 The LP can be of the form
-
+```
     [ min | max ] C'*x
     subject to
 
     A*x [ "=" | "<=" | ">=" ] b
       x >= LB
       x <= UB
-
-The coeffient matrix `a` must be 2-d, though broadcasting over higher
+```
+The coefficient matrix `a` must be 2-d, though broadcasting over higher
 dimensions is possible for other arguments.
-See ["glpk\_bc"](#glpk_bc) for an alternative.
 
 ### Arguments
 
@@ -137,6 +108,7 @@ Input values:
     - 3 (GLP\_BV)
 
         A binary variable.
+        Lower and upper bound are ignored and set to zero resp. one.
 
 - sense
 
@@ -217,15 +189,15 @@ Input values:
 
             Use two-phase dual simplex.
 
-    - price (default: 34)
+    - price (default: 0x22)
 
         Pricing option (for both primal and dual simplex):
 
-        - 17 (GLP\_PT\_STD)
+        - 0x11 (GLP\_PT\_STD)
 
             Textbook pricing.
 
-        - 34 (GLP\_PT\_PSE)
+        - 0x22 (GLP\_PT\_PSE)
 
             Steepest edge pricing.
 
@@ -295,7 +267,7 @@ Input values:
         1. Revised simplex method.
         2. Interior point method.
 
-    - rtest (default: 34)
+    - rtest (default: 0x22)
 
         Ratio test technique:
 
@@ -504,17 +476,121 @@ Output values:
     - 6 (GLP\_UNBND)
 
         Problem has no unbounded solution.
+# EXAMPLES
 
-## glpk\_bc
+A modified example from the GLPK documentation, with an extra variable
+to avoid a square matrix:
+```
+    Maximize
+     obj: + 10 x_1 + 6 x_2 + 4 x_3
 
-This is a wrapper for `glpk` that takes the same arguments, but has two
-differences:
+    Subject To
+     r_1: + x_3 + x_2 + x_1 <= 100
+     r_2: + 5 x_3 + 4 x_2 + 10 x_1 <= 600
+     r_3: + 6 x_3 + 2 x_2 + 2 x_1 <= 300
+```
+The solution is straightforward:
+```perl
+use PDL;
+use PDL::Opt::GLPK;
 
-- It is capable of broadcasting over higher dimensions of the coefficient
-matrix `a`.
-- The coefficient matrix `a` must be a true ndarray and cannot be a
-[PDL::CCS::Nd](https://metacpan.org/pod/PDL%3A%3ACCS%3A%3ANd) sparse matrix.
+$a = pdl([[1, 1, 1], [10, 4, 5], [2, 2, 6]]);
+$b = pdl([100, 600, 300]);
+$c = pdl([10, 6, 4]);
+$lb = zeroes(3);
+$ub = inf(3);
+$ctype = pdl([GLP_UP, GLP_UP, GLP_UP]);
+$vtype = pdl([GLP_CV, GLP_CV, GLP_CV]);
 
+glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLPX_MAX,
+   $xopt = null, $fopt = null, $errno = null, $status = null,
+   $lambda = null, $redcosts = null, {});
+
+# $xopt:
+# [
+#   [ 33.333333  66.666667      0          0]
+# ]
+
+# $fopt:
+# [ 733.33333]
+```
+Multiple problems on the same coefficients may be solved simultaneously.
+Some care must be taken when all combinations of multiple arguments are
+requested.
+
+The base problem:
+```
+    Maximize
+     obj: + y_1 + y_2 + y_3 + y_4
+
+    Subject To
+     r_1: - y_2 + y_1 >= 1
+     r_2: - y_3 + y_2 >= 1
+     r_3: - y_4 + y_3 >= 1
+
+    Bounds
+     0 <= y_1 <= 4
+     0 <= y_2 <= 4
+     0 <= y_3 <= 4
+     0 <= y_4 <= 4
+
+    Generals
+     y_1
+     y_2
+     y_3
+     y_4
+```
+Looking for the objective function's minimum _and_ maximum with both
+lower _and_ upper bound constraints:
+```perl
+use PDL;
+use PDL::Opt::GLPK;
+
+my $a = pdl(
+    [[1, -1, 0, 0],
+     [0, 1, -1, 0],
+     [0, 0, 1, -1]]);
+my $b = pdl([1, 1, 1]);
+my $c = pdl([1, 1, 1, 1]);
+my $lb = pdl([0, 0, 0, 0]);
+my $ub = pdl([4, 4, 4, 4]);
+
+# dims: 3, 2 - loop over lower and upper bounds
+my $ctype = pdl([[GLP_LO, GLP_LO, GLP_LO],[GLP_UP, GLP_UP, GLP_UP]]);
+
+my $vtype = (GLP_IV * ones(4));
+
+# dims: 1, 2 - extra loop over min and max
+my $sense = pdl [[GLPX_MAX], [GLPX_MIN]];
+
+my $xopt = null;
+my $fopt = null;
+my $errno = null;
+my $status = null;
+my $lambda = null;
+my $redcosts = null;
+
+glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt,
+   $errno, $status, $lambda, $redcosts, {});
+
+# $xopt:
+# [
+#  [
+#   [4 3 2 1]
+#   [4 4 4 4]
+#  ]
+#  [
+#   [3 2 1 0]
+#   [0 0 0 0]
+#  ]
+# ]
+#
+# $fopt:
+# [
+#  [10 16]
+#  [ 6  0]
+# ]
+```
 # AUTHOR
 
 Jörg Sommrey
