@@ -3,13 +3,14 @@
 PDL::Opt::GLPK - PDL interface to the GNU Linear Programming Kit
 
 # SYNOPSIS
-
+```perl
+    use PDL;
     use PDL::Opt::GLPK;
 
     glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
-           $xopt = null, $fopt = null, $errno = null, $status = null, $lambda = null,
-           $redcosts = null, \%params);
-
+           $xopt = null, $fopt = null, $errno = null, $status = null,
+           $lambda = null, $redcosts = null, \%params);
+```
 
 # DESCRIPTION
 
@@ -36,9 +37,6 @@ The LP can be of the form
       x >= LB
       x <= UB
 ```
-The coefficient matrix `a` must be 2-d, though broadcasting over higher
-dimensions is possible for other arguments.
-
 ### Arguments
 
 Input values:
@@ -50,6 +48,9 @@ Input values:
 - a
 
     A ndarray containing the constraints coefficients.
+    `a` must be 2-d, though broadcasting over higher dimensions is possible
+    for other arguments.
+
     The coefficients may be given as a [PDL::CCS::Nd](https://metacpan.org/pod/PDL%3A%3ACCS%3A%3ANd) sparse matrix as
     well.
 
@@ -476,6 +477,7 @@ Output values:
     - 6 (GLP\_UNBND)
 
         Problem has no unbounded solution.
+
 # EXAMPLES
 
 A modified example from the GLPK documentation, with an extra variable

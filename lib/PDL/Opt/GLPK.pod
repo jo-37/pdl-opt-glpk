@@ -10,11 +10,12 @@ PDL::Opt::GLPK - PDL interface to the GNU Linear Programming Kit
 
 =head1 SYNOPSIS
 
+ use PDL;
  use PDL::Opt::GLPK;
 
  glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
-	$xopt = null, $fopt = null, $errno = null, $status = null, $lambda = null,
-	$redcosts = null, \%params);
+	$xopt = null, $fopt = null, $errno = null, $status = null,
+	$lambda = null, $redcosts = null, \%params);
 
 =head1 DESCRIPTION
 
@@ -41,9 +42,6 @@ The LP can be of the form
    x >= LB
    x <= UB
 
-The coefficient matrix C<a> must be 2-d, though broadcasting over higher
-dimensions is possible for other arguments.
-
 =head3 Arguments
 
 Input values:
@@ -57,6 +55,9 @@ A ndarray containing the objective function coefficients.
 =item a
 
 A ndarray containing the constraints coefficients.
+C<a> must be 2-d, though broadcasting over higher dimensions is possible
+for other arguments.
+
 The coefficients may be given as a L<PDL::CCS::Nd> sparse matrix as
 well.
 
