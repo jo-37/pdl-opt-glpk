@@ -14,8 +14,8 @@ PDL::Opt::GLPK - PDL interface to the GNU Linear Programming Kit
  use PDL::Opt::GLPK;
 
  glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
-	$xopt = null, $fopt = null, $errno = null, $status = null,
-	$lambda = null, $redcosts = null, \%params);
+	$xopt = null, $fopt = null, $status = null,
+	$lambda = null, $redcosts = null, \%param);
 
 =head1 DESCRIPTION
 
@@ -28,8 +28,8 @@ The interface was ported from Octave and mimics its GLPK interface.
 =head2 glpk
 
  Signature (c(m); a(m, n); b(n); lb(m); ub(m); ctype(n); vtype(m);
-	int sense; [o]xopt(m); [o]fopt(); [o]errno(); [o]status(); [o]lambda(n);
-	[o]redcosts(n); SV *opts)
+	int sense; [o]xopt(m); [o]fopt(); [o]status(); [o]lambda(n);
+	[o]redcosts(n); SV *param)
 
 Solve a linear program using the GNU GLPK library.
 
@@ -131,7 +131,7 @@ Lower and upper bound are ignored and set to zero resp. one.
 If sense is 1 (GLPX_MIN), the problem is a minimization. If sense is -1
 (GLPX_MAX), the problem is a maximization.
 
-=item param
+=item param (optional)
 
 A hash reference with any of following keys used to define the behavior
 of solver. Missing keys take on default values, so you
@@ -356,6 +356,8 @@ If this parameter is nonzero, save a copy of the problem in
 CPLEX LP format to the file "outpb.lp". There is currently
 no way to change the name of the output file.
 
+Broadcasting will be diabled if this parameter is nonzero.
+
 =back
 
 Real parameters:
@@ -427,94 +429,6 @@ The optimizer (the value of the decision variables at the optimum).
 
 The optimum value of the objective function.
 
-=item errnum
-
-Error code.
-
-=over
-
-=item 0
-
-No error.
-
-=item 1 (GLP_EBADB)
-
-Invalid basis.
-
-=item 2 (GLP_ESING)
-
-Singular matrix.
-
-=item 3 (GLP_ECOND)
-
-Ill-conditioned matrix.
-
-=item 4 (GLP_EBOUND)
-
-Invalid bounds.
-
-=item 5 (GLP_EFAIL)
-
-Solver failed.
-
-=item 6 (GLP_EOBJLL)
-
-Objective function lower limit reached.
-
-=item 7 (GLP_EOBJUL)
-
-Objective function upper limit reached.
-
-=item 8 (GLP_EITLIM)
-
-Iterations limit exhausted.
-
-=item 9 (GLP_ETMLIM)
-
-Time limit exhausted.
-
-=item 10 (GLP_ENOPFS)
-
-No primal feasible solution.
-
-=item 11 (GLP_ENODFS)
-
-No dual feasible solution.
-
-=item 12 (GLP_EROOT)
-
-Root LP optimum not provided.
-
-=item 13 (GLP_ESTOP)
-
-Search terminated by application.
-
-=item 14 (GLP_EMIPGAP)
-
-Relative MIP gap tolerance reached.
-
-=item 15 (GLP_ENOFEAS)
-
-No primal/dual feasible solution.
-
-=item 16 (GLP_ENOCVG)
-
-No convergence.
-
-=item 17 (GLP_EINSTAB)
-
-Numerical instability.
-
-=item 18 (GLP_EDATA)
-
-Invalid data.
-
-=item 19 (GLP_ERANGE)
-
-Result out of range.
-
-=back
-
 =item lambda
 
 Dual variables.
@@ -584,8 +498,8 @@ The solution is straightforward:
  $vtype = pdl([GLP_CV, GLP_CV, GLP_CV, GLP_CV]);
 
  glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLPX_MAX,
-	$xopt = null, $fopt = null, $errno = null, $status = null,
-	$lambda = null, $redcosts = null, {});
+	$xopt = null, $fopt = null, $status = null,
+	$lambda = null, $redcosts = null);
 
  # $xopt:
  # [
@@ -648,13 +562,12 @@ lower I<and> upper bound constraints:
 
  my $xopt = null;
  my $fopt = null;
- my $errno = null;
  my $status = null;
  my $lambda = null;
  my $redcosts = null;
 
  glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt,
-    $errno, $status, $lambda, $redcosts, {});
+    $status, $lambda, $redcosts);
 
  # $xopt:
  # [
@@ -673,6 +586,10 @@ lower I<and> upper bound constraints:
  #  [10 16]
  #  [ 6  0]
  # ]
+
+=head1 ERRORS
+
+In case the solver reports an error, it will raise an PDL error.
 
 =head1 AUTHOR
 
