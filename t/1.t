@@ -29,10 +29,12 @@ say $xopt;
 say $fopt;
 
 my $xexp = pdl(33.3333, 66.6667, 0, 0);
-ok all(approx $xopt, $xexp, 1e-4), 'xopt from GLPK example';
+ok(all(approx $xopt, $xexp, 1e-4), 'xopt from GLPK example') ||
+    diag "got $xopt";
 
 my $fexp = 733.333;
-ok approx($fopt, $fexp, 1e-3), 'fopt from GLPK example';
+ok(approx($fopt, $fexp, 1e-3), 'fopt from GLPK example') ||
+    diag "got $fopt";
 
 $a = identity(2);
 $b = ones(2);
@@ -52,7 +54,7 @@ $status = null;
 glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense,
     $xopt, $fopt, $errno, $status, $lambda, $redcosts, \%param);
 
-ok all(approx($xopt, pdl(-1, -1))), 'xopt GLP_DB';
-ok approx($fopt, 2), 'fopt GLP_DB';
+ok(all(approx($xopt, pdl(-1, -1))), 'xopt GLP_DB') || diag "got $xopt";
+ok(approx($fopt, 2), 'fopt GLP_DB') || diag "got $fopt";
 
 done_testing;
