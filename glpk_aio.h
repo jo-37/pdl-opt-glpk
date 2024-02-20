@@ -1,5 +1,6 @@
 #ifndef GLPK_AIO_H
 #define GLPK_AIO_H 1
+
 typedef struct control_params
 {
   int msglev;

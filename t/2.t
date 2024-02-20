@@ -21,13 +21,12 @@ my $vtype = (GLP_IV * ones(4));
 my $sense = pdl [[GLPX_MAX], [GLPX_MIN]];
 my $xopt = null;
 my $fopt = null;
-my $errno = null;
 my $status = null;
 my $lambda = null;
 my $redcosts = null;
 
 glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt,
-   $errno, $status, $lambda, $redcosts, {});
+   $status, $lambda, $redcosts, {save_pb => 0});
 
 ok(all approx($fopt, pdl([[10, 16], [6, 0]])), 'fopt for min/max lb/ub') ||
     diag "got $fopt";

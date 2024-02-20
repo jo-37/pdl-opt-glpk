@@ -19,12 +19,12 @@ my $xopt = null;
 my $fopt = null;
 my $lambda = null;
 my $redcosts = null;
-my $errno = null;
 my $status = null;
-my %param = (msglev => 0);
+my %param = (msglev => 0, save_pb => 0);
 
 glpk($c,  $a, $b, $lb, $ub, $ctype, $vtype, $sense,
-    $xopt, $fopt, $errno, $status, $lambda, $redcosts, \%param);
+    $xopt, $fopt, $status, $lambda, $redcosts, \%param);
+say $status;
 say $xopt;
 say $fopt;
 
@@ -48,11 +48,10 @@ $xopt = null;
 $fopt = null;
 $lambda = null;
 $redcosts = null;
-$errno = null;
 $status = null;
 
 glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense,
-    $xopt, $fopt, $errno, $status, $lambda, $redcosts, \%param);
+    $xopt, $fopt, $status, $lambda, $redcosts, \%param);
 
 ok(all(approx($xopt, pdl(-1, -1))), 'xopt GLP_DB') || diag "got $xopt";
 ok(approx($fopt, 2), 'fopt GLP_DB') || diag "got $fopt";

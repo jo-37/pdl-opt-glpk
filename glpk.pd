@@ -26,6 +26,29 @@ int glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
       int save_pb, int scale, const control_params *par,
       double *xmin, double *fmin, int *status,
       double *lambda, double *redcosts, double *time);
+
+static const char *glpk_err[] = {
+	"glpk: no error",
+	"glpk: invalid basis",
+	"glpk: singular matrix",
+	"glpk: ill-conditioned matrix",
+	"glpk: invalid bounds",
+	"glpk: solver failed",
+	"glpk: objective lower limit reached",
+	"glpk: objective upper limit reached",
+	"glpk: iteration limit exceeded",
+	"glpk: time limit exceeded",
+	"glpk: no primal feasible solution",
+	"glpk: no dual feasible solution",
+	"glpk: root LP optimum not provided",
+	"glpk: search terminated by application",
+	"glpk: relative mip gap tolerance reached",
+	"glpk: no primal/dual feasible solution",
+	"glpk: no convergence",
+	"glpk: numerical instability",
+	"glpk: invalid data",
+	"glpk: result out of range",
+};
 EOD
 
 pp_addpm({At => 'Top'}, <<'EOD');
@@ -89,26 +112,6 @@ use constant GLP_RT_STD => 0x11;
 use constant GLP_RT_HAR => 0x22;
 use constant GLP_RT_FLIP => 0x33;
 
-use constant GLP_EBADB => 0x01;
-use constant GLP_ESING => 0x02;
-use constant GLP_ECOND => 0x03;
-use constant GLP_EBOUND => 0x04;
-use constant GLP_EFAIL => 0x05;
-use constant GLP_EOBJLL => 0x06;
-use constant GLP_EOBJUL => 0x07;
-use constant GLP_EITLIM => 0x08;
-use constant GLP_ETMLIM => 0x09;
-use constant GLP_ENOPFS => 0x0A;
-use constant GLP_ENODFS => 0x0B;
-use constant GLP_EROOT => 0x0C;
-use constant GLP_ESTOP => 0x0D;
-use constant GLP_EMIPGAP => 0x0E;
-use constant GLP_ENOFEAS => 0x0F;
-use constant GLP_ENOCVG => 0x10;
-use constant GLP_EINSTAB => 0x11;
-use constant GLP_EDATA => 0x12;
-use constant GLP_ERANGE => 0x13;
-
 use constant GLP_UNDEF => 1;
 use constant GLP_FEAS => 2;
 use constant GLP_INFEAS => 3;
@@ -124,10 +127,7 @@ pp_add_exported(qw(GLPX_MIN GLPX_MAX GLP_CV GLP_IV GLP_BV GLP_FR GLP_LO
     GLP_BV GLP_MSG_OFF GLP_MSG_ERR GLP_MSG_ON GLP_MSG_ALL GLP_MSG_DBG
     GLP_PRIMAL GLP_DUALP GLP_DUAL GLP_PT_STD GLP_PT_PSE GLP_BR_FFV
     GLP_BR_LFV GLP_BR_MFV GLP_BR_DTH GLP_BR_PCH GLP_BT_DFS GLP_BT_BFS
-    GLP_BT_BLB GLP_BT_BPH GLP_RT_STD GLP_RT_HAR GLP_RT_FLIP GLP_EBADB
-    GLP_ESING GLP_ECOND GLP_EBOUND GLP_EFAIL GLP_EOBJLL GLP_EOBJUL
-    GLP_EITLIM GLP_ETMLIM GLP_ENOPFS GLP_ENODFS GLP_EROOT GLP_ESTOP
-    GLP_EMIPGAP GLP_ENOFEAS GLP_ENOCVG GLP_EINSTAB GLP_EDATA GLP_ERANGE
+    GLP_BT_BLB GLP_BT_BPH GLP_RT_STD GLP_RT_HAR GLP_RT_FLIP 
     GLP_UNDEF GLP_FEAS GLP_INFEAS GLP_NOFEAS GLP_OPT GLP_UNBND));
 
 pp_bless('PDL::Opt::GLPK');
@@ -148,7 +148,6 @@ pp_def('glpk',
 			int [t]freeUB(m);
 			double [o]xopt(m);
 			double [o]fopt();
-			int [o]errnum();
 			int [o]status();
 			double [o]lambda(n);
 			double [o]redcosts(n);',
@@ -156,7 +155,9 @@ pp_def('glpk',
 	GenericTypes => ['D'],
 	PMCode => q{
 		sub PDL::Opt::GLPK::glpk {
-			barf("glpk: need 15 arguments") if @_ != 15;
+			push @_, {} if @_ == 13;
+			barf("param is not a hash ref")
+				unless @_ < 14 || ref($_[13]) eq 'HASH';
 			barf("cannot broadcast over 'a'") if $_[1]->ndims > 2;
 			my $at = $_[1]->xchg(0, 1);
 			my $a = pdl(0)->append($at->isa('PDL::CCS::Nd') ?
@@ -180,36 +181,15 @@ pp_def('glpk',
 			int n = $SIZE(n);
 			int m = $SIZE(m);
 			int nz = $SIZE(nz) - 1;
-			int isMIP = 0;
-			loop(m) %{
-				$freeLB() = ($lb() == -INFINITY);
-				$freeUB() = ($ub() == INFINITY);
-				if ($vartype() > GLP_CV) {
-					isMIP = 1;
-				}
-			%}
-
-			loop(n) %{
-				$ctype_c() = CTYPE($ctype());
-			%}
-
 			control_params par;
 			struct extra_parms xparm;
 			double time;
-			int ret;
 
-			if (!SvROK($COMP(param))) {
-				$CROAK("'param' is not a reference");
-			}
-			SV *ref = SvRV($COMP(param));
-			if (SvTYPE(ref) != SVt_PVHV) {
-				$CROAK("'param' is not a hash reference");
-			}
-			HV *param = (HV*)ref;
+			HV *param = (HV*) SvRV($COMP(param));
 
 			SETPARM(param, msglev, par, IV, 1);
 			if (par.msglev < 0 || par.msglev > 4)
-    			$CROAK("PARAM.msglev must be 0 (no output) or 1 (error and warning messages only [default]) or 2 (normal output) or 3 (full output)");
+				$CROAK("PARAM.msglev must be 0 (no output) or 1 (error and warning messages only [default]) or 2 (normal output) or 3 (full output)");
 
 			SETPARM(param, scale, xparm, IV, 16);
 			if (xparm.scale < 0 || xparm.scale > 128)
@@ -258,12 +238,40 @@ pp_def('glpk',
 			SETPARM(param, tolint, par, NV, 1e-5);
 			SETPARM(param, tolobj, par, NV, 1e-7);
 
-			$errnum() = glpk($sense(), m, n, $P(c), nz, $P(rn), $P(cn),
-                $P(a), $P(b), $P(ctype_c), $P(freeLB), $P(lb), $P(freeUB),
-				$P(ub), $P(vartype), isMIP, xparm.lpsolver,
-				xparm.save_pb, xparm.scale, &par, $P(xopt), $P(fopt),
-				$P(status), $P(lambda), $P(redcosts), &time);
+			broadcastloop %{
 
+				int isMIP = 0;
+				loop(m) %{
+					$freeLB() = ($lb() == -INFINITY);
+					$freeUB() = ($ub() == INFINITY);
+					if ($vartype() > GLP_CV) {
+						isMIP = 1;
+					}
+				%}
+
+				loop(n) %{
+					$ctype_c() = CTYPE($ctype());
+				%}
+
+
+				int errnum;
+				errnum = glpk($sense(), m, n, $P(c), nz, $P(rn), $P(cn),
+					$P(a), $P(b), $P(ctype_c), $P(freeLB), $P(lb), $P(freeUB),
+					$P(ub), $P(vartype), isMIP, xparm.lpsolver,
+					xparm.save_pb, xparm.scale, &par, $P(xopt), $P(fopt),
+					$P(status), $P(lambda), $P(redcosts), &time);
+				
+				if (errnum) {
+					PDL_err.error = PDL_EUSERERROR;
+					PDL_err.message = glpk_err[errnum];
+					return PDL_err;
+				}
+				if (xparm.save_pb) {
+					return PDL_err;
+				}
+			%}
+
+			return PDL_err;
 	},
 	Doc => undef
 );

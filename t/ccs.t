@@ -27,11 +27,10 @@ my $xopt = null;
 my $fopt = null;
 my $lambda = null;
 my $redcosts = null;
-my $errno = null;
 my $status = null;
 
 glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense,
-    $xopt, $fopt, $errno, $status, $lambda, $redcosts, \%param);
+    $xopt, $fopt, $status, $lambda, $redcosts, \%param);
 
 #say "status: $status";
 #say "xopt: $xopt";
