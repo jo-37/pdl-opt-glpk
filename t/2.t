@@ -18,15 +18,13 @@ my $ub = pdl([4, 4, 4, 4]);
 my $ctype = pdl([[GLP_LO, GLP_LO, GLP_LO],[GLP_UP, GLP_UP, GLP_UP]]);
 my $vtype = (GLP_IV * ones(4));
 # dims: 1, 2;
-my $sense = pdl [[GLPX_MAX], [GLPX_MIN]];
+my $sense = pdl [[GLP_MAX], [GLP_MIN]];
 my $xopt = null;
 my $fopt = null;
 my $status = null;
-my $lambda = null;
-my $redcosts = null;
 
-glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt,
-   $status, $lambda, $redcosts, {save_pb => 0});
+glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt, $status,
+    null, null, {save_pb => 0});
 
 ok(all approx($fopt, pdl([[10, 16], [6, 0]])), 'fopt for min/max lb/ub') ||
     diag "got $fopt";

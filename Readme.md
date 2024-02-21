@@ -80,7 +80,7 @@ Input values:
 
     - 2 (GLP\_LO)
 
-        An inequality with a lower bound.
+        An inequality constraint with a lower bound.
 
     - 3 (GLP\_UP)
 
@@ -112,9 +112,13 @@ Input values:
         Lower and upper bound are ignored and set to zero resp. one.
 
 - sense
+    - 1 (GLP\_MIN)
 
-    If sense is 1 (GLPX\_MIN), the problem is a minimization. If sense is -1
-    (GLPX\_MAX), the problem is a maximization.
+        Minimize the objective function.
+
+    - 2 (GLP\_MAX)
+
+        Maximize the objective function.
 
 - param (optional)
 
@@ -239,7 +243,9 @@ Input values:
             Hybrid pseudocost heuristic.
 
     - btrack (default: 4)
-    Backtracking technique option (for MIP only):
+
+        Backtracking technique option (for MIP only):
+
         - 1 (GLP\_BT\_DFS)
 
             Depth first search.
@@ -255,6 +261,7 @@ Input values:
         - 4 (GLP\_BT\_BPH)
 
             Best projection heuristic.
+
     - presol (default: 1)
 
         If this flag is set, the simplex solver uses the built-in LP
@@ -265,8 +272,9 @@ Input values:
         Select which solver to use. If the problem is a MIP problem
         this flag will be ignored.
 
-        1. Revised simplex method.
-        2. Interior point method.
+        - 1 Revised simplex method.
+
+        - 2 Interior point method.
 
     - rtest (default: 0x22)
 
@@ -297,10 +305,15 @@ Input values:
     - save\_pb (default: 0)
 
         If this parameter is nonzero, save a copy of the problem in
-        CPLEX LP format to the file "outpb.lp". There is currently
-        no way to change the name of the output file.
+        CPLEX LP format to a file as specified by the parameter `save_fn`.
 
-        Broadcasting will be diabled if this parameter is nonzero.
+    - save\_fn (default: `"outpb.%d.lp"`)
+
+        This is a format for the file name(s) the problem will be written to if
+        `save_pb` is true.
+        The pattern shall contain a placeholder like `%d`
+        that will be replaced with a sequence number.
+        This is required for broadcasting to prevent the file being overwritten.
 
     Real parameters:
 
@@ -363,11 +376,11 @@ Output values:
 
     The optimum value of the objective function.
 
-- lambda
+- lambda (optional)
 
     Dual variables.
 
-- redcosts
+- redcosts (optional)
 
     Reduced Costs.
 
@@ -425,8 +438,7 @@ $ctype = pdl([GLP_UP, GLP_UP, GLP_UP]);
 $vtype = pdl([GLP_CV, GLP_CV, GLP_CV, GLP_CV]);
 
 glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLPX_MAX,
-   $xopt = null, $fopt = null, $status = null,
-   $lambda = null, $redcosts = null);
+   $xopt = null, $fopt = null, $status = null);
 
 # $xopt:
 # [
@@ -491,11 +503,8 @@ my $sense = pdl [[GLPX_MAX], [GLPX_MIN]];
 my $xopt = null;
 my $fopt = null;
 my $status = null;
-my $lambda = null;
-my $redcosts = null;
 
-glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt,
-   $status, $lambda, $redcosts);
+glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt, $status);
 
 # $xopt:
 # [
@@ -516,6 +525,14 @@ glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt,
 # ]
 ```
 
+## Specifying parameters
+
+The `params` hash ref is always the last argument. It is permitted to
+leave out the other optional output arguments, as in
+```perl
+    glpk($c, $a, $b, $lb, $up, $ctpye, $vtype, $sense,
+        $xopt, $fopt, $status, {save_pb => 1});
+```
 # ERRORS
 
 In case the solver reports an error, it will raise an PDL error.

@@ -89,7 +89,7 @@ A free (unbounded) constraint (the constraint is ignored).
 
 =item 2 (GLP_LO)
 
-An inequality with a lower bound.
+An inequality constraint with a lower bound.
 
 =item 3 (GLP_UP)
 
@@ -128,8 +128,17 @@ Lower and upper bound are ignored and set to zero resp. one.
 
 =item sense
 
-If sense is 1 (GLPX_MIN), the problem is a minimization. If sense is -1
-(GLPX_MAX), the problem is a maximization.
+=over
+
+=item 1 (GLP_MIN)
+
+	Minimize the objective function.
+
+=item 2 (GLP_MAX)
+
+	Maximize the objective function.
+
+=back
 
 =item param (optional)
 
@@ -276,6 +285,7 @@ Hybrid pseudocost heuristic.
 =back
 
 =item btrack (default: 4)
+
 Backtracking technique option (for MIP only):
 
 =over
@@ -353,10 +363,15 @@ to the standard output.
 =item save_pb (default: 0)
 
 If this parameter is nonzero, save a copy of the problem in
-CPLEX LP format to the file "outpb.lp". There is currently
-no way to change the name of the output file.
+CPLEX LP format to a file as specified by the parameter C<save_fn>.
 
-Broadcasting will be diabled if this parameter is nonzero.
+=item save_fn (default: C<"outpb.%d.lp">)
+
+This is a format for the file name(s) the problem will be written to if
+C<save_pb> is true.
+The pattern shall contain a placeholder like C<%d>
+that will be replaced with a sequence number.
+This is required for broadcasting to prevent the file being overwritten.
 
 =back
 
@@ -429,11 +444,11 @@ The optimizer (the value of the decision variables at the optimum).
 
 The optimum value of the objective function.
 
-=item lambda
+=item lambda (optional)
 
 Dual variables.
 
-=item redcosts
+=item redcosts (optional)
 
 Reduced Costs.
 
@@ -498,8 +513,7 @@ The solution is straightforward:
  $vtype = pdl([GLP_CV, GLP_CV, GLP_CV, GLP_CV]);
 
  glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLPX_MAX,
-	$xopt = null, $fopt = null, $status = null,
-	$lambda = null, $redcosts = null);
+	$xopt = null, $fopt = null, $status = null);
 
  # $xopt:
  # [
@@ -563,11 +577,8 @@ lower I<and> upper bound constraints:
  my $xopt = null;
  my $fopt = null;
  my $status = null;
- my $lambda = null;
- my $redcosts = null;
 
- glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt,
-    $status, $lambda, $redcosts);
+ glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt, $status);
 
  # $xopt:
  # [
@@ -586,6 +597,14 @@ lower I<and> upper bound constraints:
  #  [10 16]
  #  [ 6  0]
  # ]
+
+=head2 Specifying parameters
+
+The C<params> hash ref is always the last argument. It is permitted to
+leave out the other optional output arguments, as in
+
+ glpk($c, $a, $b, $lb, $up, $ctpye, $vtype, $sense,
+     $xopt, $fopt, $status, {save_pb => 1});
 
 =head1 ERRORS
 

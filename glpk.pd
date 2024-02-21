@@ -12,7 +12,6 @@ pp_addhdr(<<'EOD');
 #include <glpk.h>
 #include "glpk_aio.h"
 
-#define CTYPE(p) ("\0FLUDS"[p])
 #define SETPARM(sv, key, struc, type, default) { \
 		SV **entry = hv_fetch(sv, #key, strlen(#key), 0); \
 		struc.key = (entry != NULL && SvOK(*entry)) ? \
@@ -21,11 +20,10 @@ pp_addhdr(<<'EOD');
 	}
 
 int glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
-      double *a, double *b, char *ctype, int *freeLB, double *lb,
-      int *freeUB, double *ub, int *vartype, int isMIP, int lpsolver,
-      int save_pb, int scale, const control_params *par,
-      double *xmin, double *fmin, int *status,
-      double *lambda, double *redcosts, double *time);
+      double *a, double *b, int *ctype, int *freeLB, double *lb,
+      int *freeUB, double *ub, int *vartype, int isMIP,
+	  const control_params *par, double *xmin, double *fmin, int *status,
+      double *lambda, double *redcosts, double *time, int seq);
 
 static const char *glpk_err[] = {
 	"glpk: no error",
@@ -49,14 +47,18 @@ static const char *glpk_err[] = {
 	"glpk: invalid data",
 	"glpk: result out of range",
 };
+
+void glpk_warn(const char *msg) {
+	warn(msg);
+}
 EOD
 
 pp_addpm({At => 'Top'}, <<'EOD');
 use strict;
 use warnings;
 
-use constant GLPX_MIN => 1;	# Octave differs from GLPK!
-use constant GLPX_MAX => -1;	# Octave differs from GLPK!
+use constant GLP_MIN => 1;
+use constant GLP_MAX => 2;
 
 use constant GLP_CV => 1;
 use constant GLP_IV => 2;
@@ -119,9 +121,15 @@ use constant GLP_NOFEAS => 4;
 use constant GLP_OPT => 5;
 use constant GLP_UNBND => 6;
 
+BEGIN {
+	our $keys = join '|', qw(msglev dual price itlim outfrq branch
+	btrack presol rtest tmlim outdly tolbnd toldj tolpiv objll objul
+	tolint tolobj scale lpsolver save_pb save_fn);
+}
+
 EOD
 
-pp_add_exported(qw(GLPX_MIN GLPX_MAX GLP_CV GLP_IV GLP_BV GLP_FR GLP_LO
+pp_add_exported(qw(GLP_MIN GLP_MAX GLP_CV GLP_IV GLP_BV GLP_FR GLP_LO
     GLP_UP GLP_DB GLP_FX GLP_MSG_OFF GLP_MSG_ERR GLP_MSG_ON GLP_MSG_ALL
     GLP_SF_GM GLP_SF_EQ GLP_SF_2N GLP_SF_SKIP GLP_SF_AUTO GLP_CV GLP_IV
     GLP_BV GLP_MSG_OFF GLP_MSG_ERR GLP_MSG_ON GLP_MSG_ALL GLP_MSG_DBG
@@ -143,7 +151,6 @@ pp_def('glpk',
 			int ctype(n);
 			int vartype(m);
 			int sense();
-			byte [t]ctype_c(n);
 			int [t]freeLB(m);
 			int [t]freeUB(m);
 			double [o]xopt(m);
@@ -155,9 +162,15 @@ pp_def('glpk',
 	GenericTypes => ['D'],
 	PMCode => q{
 		sub PDL::Opt::GLPK::glpk {
-			push @_, {} if @_ == 13;
-			barf("param is not a hash ref")
-				unless @_ < 14 || ref($_[13]) eq 'HASH';
+			my $parms = ref($_[-1]) eq 'HASH' ? pop @_ : {};
+			push @_, null if @_ == 11;
+			push @_, null if @_ == 12;
+			barf("param is not a hash ref") if @_ == 14;
+			barf("argument(s) missing") if @_ < 13;
+			push @_, $parms;
+			our $keys;
+			my @unknown = grep !/^(?:$keys)$/, keys %{$_[13]};
+			barf("parameter invalid: @unknown") if @unknown;
 			barf("cannot broadcast over 'a'") if $_[1]->ndims > 2;
 			my $at = $_[1]->xchg(0, 1);
 			my $a = pdl(0)->append($at->isa('PDL::CCS::Nd') ?
@@ -182,7 +195,6 @@ pp_def('glpk',
 			int m = $SIZE(m);
 			int nz = $SIZE(nz) - 1;
 			control_params par;
-			struct extra_parms xparm;
 			double time;
 
 			HV *param = (HV*) SvRV($COMP(param));
@@ -191,8 +203,8 @@ pp_def('glpk',
 			if (par.msglev < 0 || par.msglev > 4)
 				$CROAK("PARAM.msglev must be 0 (no output) or 1 (error and warning messages only [default]) or 2 (normal output) or 3 (full output)");
 
-			SETPARM(param, scale, xparm, IV, 16);
-			if (xparm.scale < 0 || xparm.scale > 128)
+			SETPARM(param, scale, par, IV, 16);
+			if (par.scale < 0 || par.scale > 128)
 				$CROAK("PARAM.scale must either be 128 (automatic selection of scaling options), or a bitwise or of: 1 (geometric mean scaling), 16 (equilibration scaling), 32 (round scale factors to power of two), 64 (skip if problem is well scaled");
 
 			SETPARM(param, dual, par, IV, 1);
@@ -217,8 +229,8 @@ pp_def('glpk',
 			if (par.presol < 0 || par.presol > 1)
 				$CROAK("PARAM.presol must be 0 (do NOT use LP presolver) or 1 (use LP presolver [default])");
 
-			SETPARM(param, lpsolver, xparm, IV, 1);
-			if (xparm.lpsolver < 1 || xparm.lpsolver > 2)
+			SETPARM(param, lpsolver, par, IV, 1);
+			if (par.lpsolver < 1 || par.lpsolver > 2)
 				$CROAK("PARAM.lpsolver must be 1 (simplex method) or 2 (interior point method)");
 
 			SETPARM(param, rtest, par, IV, 34);
@@ -227,9 +239,8 @@ pp_def('glpk',
 
 			SETPARM(param, tmlim, par, IV, INT_MAX);
 			SETPARM(param, outdly, par, IV, 0);
-			SETPARM(param, save_pb, xparm, IV, 0);
-			xparm.save_pb = !!xparm.save_pb;
-
+			SETPARM(param, save_pb, par, IV, 0);
+			SETPARM(param, save_fn, par, PV_nolen, "outpb.%d.lp");
 			SETPARM(param, tolbnd, par, NV, 1e-7);
 			SETPARM(param, toldj, par, NV, 1e-7);
 			SETPARM(param, tolpiv, par, NV, 1e-10);
@@ -237,6 +248,9 @@ pp_def('glpk',
 			SETPARM(param, objul, par, NV, -INFINITY);
 			SETPARM(param, tolint, par, NV, 1e-5);
 			SETPARM(param, tolobj, par, NV, 1e-7);
+
+
+			int seq = 0;
 
 			broadcastloop %{
 
@@ -249,24 +263,15 @@ pp_def('glpk',
 					}
 				%}
 
-				loop(n) %{
-					$ctype_c() = CTYPE($ctype());
-				%}
-
-
 				int errnum;
 				errnum = glpk($sense(), m, n, $P(c), nz, $P(rn), $P(cn),
-					$P(a), $P(b), $P(ctype_c), $P(freeLB), $P(lb), $P(freeUB),
-					$P(ub), $P(vartype), isMIP, xparm.lpsolver,
-					xparm.save_pb, xparm.scale, &par, $P(xopt), $P(fopt),
-					$P(status), $P(lambda), $P(redcosts), &time);
+					$P(a), $P(b), $P(ctype), $P(freeLB), $P(lb), $P(freeUB),
+					$P(ub), $P(vartype), isMIP, &par, $P(xopt), $P(fopt),
+					$P(status), $P(lambda), $P(redcosts), &time, seq++);
 				
 				if (errnum) {
 					PDL_err.error = PDL_EUSERERROR;
 					PDL_err.message = glpk_err[errnum];
-					return PDL_err;
-				}
-				if (xparm.save_pb) {
 					return PDL_err;
 				}
 			%}

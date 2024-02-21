@@ -17,20 +17,28 @@ my %WriteMakefileArgs = (
     MIN_PERL_VERSION => '5.010',
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => '0',
+        'PDL::Core::Dev' => '0',
+        'Devel::CheckLib' => '0',
     },
     TEST_REQUIRES => {
-        'Test2::V0' => '0', 'Test::More' => 0
+        'Test2::V0' => '0',
+        'Test::More' => 0
     },
     PREREQ_PM => {
         'PDL'              => '2.085',
     },
-    MAN3PODS => { "lib/PDL/Opt/GLPK.pod" => "blib/man3/PDL::Opt::GLPK.3pm" },
-    C => [qw(GLPK.c glpk_aio.cc)],
+    # MAN3PODS => { "lib/PDL/Opt/GLPK.pod" => "blib/man3/PDL::Opt::GLPK.3pm" },
+    C => ['GLPK.c', 'glpk_aio.c'],
     OBJECT => '$(O_FILES)',
     LIBS => [' -lm -lglpk '],
+    PM => {
+        "lib/PDL/Opt/GLPK.pod" => '$(INST_LIBDIR)/GLPK.pod',
+        "GLPK.pm" => '$(INST_LIBDIR)/GLPK.pm',
+    },
+    #PMLIBDIRS => ['lib', '$(BASEEXT)'],
 );
-$WriteMakefileArgs{PM}{"lib/PDL/Opt/GLPK.pod"}  =
-    '$(INST_LIBDIR)/GLPK.pod';
+#$WriteMakefileArgs{PM}{"lib/PDL/Opt/GLPK.pod"}  =
+#    '$(INST_LIBDIR)/GLPK.pod';
 
 # Compatibility with old versions of ExtUtils::MakeMaker
 unless (eval { ExtUtils::MakeMaker->VERSION('6.64'); 1 }) {

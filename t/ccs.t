@@ -15,22 +15,19 @@ my $w2 = $w1->copy;
 $w2->slice('0') += 1;
 my $w = $w1->glue(1, $w2);
 my $a = PDL::CCS::Nd->newFromWhich($w, ones($n)->append(-ones($n)));
+say $a;
 my $b = ones $n;
 my $c = ones double, $m;
 my $lb = zeroes($m);
 my $ub = $m * ones($m);
 my $ctype = GLP_LO * ones($n);
 my $vtype = GLP_CV * ones($m);
-my $sense = GLPX_MAX;
-my %param = (msglev => 1);
+my $sense = GLP_MAX;
 my $xopt = null;
 my $fopt = null;
-my $lambda = null;
-my $redcosts = null;
 my $status = null;
 
-glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense,
-    $xopt, $fopt, $status, $lambda, $redcosts, \%param);
+glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt, $status);
 
 #say "status: $status";
 #say "xopt: $xopt";

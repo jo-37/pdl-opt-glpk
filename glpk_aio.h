@@ -21,14 +21,20 @@ typedef struct control_params
   double objul;
   double tolint;
   double tolobj;
+  int scale;
+  int lpsolver;
+  int save_pb;
+  const char *save_fn;
 } control_params;
 
+/*
 struct extra_parms {
 	int scale;
 	int lpsolver;
 	int save_pb;
+	char *save_fn;
 };
+*/
 
-#define error(...) error(0, 0, __VA_ARGS__)
-
+void glpk_warn(const char *msg);
 #endif
