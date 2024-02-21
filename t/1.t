@@ -18,7 +18,7 @@ my $sense = pdl([GLP_MAX]);
 my $xopt = null;
 my $fopt = null;
 my $status = null;
-my %param = (msglev => 1, save_pb => 1);
+my %param = (msglev => 1, save_pb => 0);
 
 glpk($c,  $a, $b, $lb, $ub, $ctype, $vtype, $sense,
     $xopt, $fopt, $status, null, null, \%param);

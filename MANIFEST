@@ -1,6 +1,6 @@
 Changes
 glpk.pd
-glpk_aio.cc
+glpk_aio.c
 glpk_aio.h
 lib/PDL/Opt/GLPK.pod
 Makefile.PL
