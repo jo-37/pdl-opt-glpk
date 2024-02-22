@@ -21,6 +21,7 @@ along with Octave; see the file COPYING.  If not, see
 
 */
 
+#include <limits.h>
 #include <stdio.h>
 #include <time.h>
 #include <glpk.h>
@@ -102,8 +103,8 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
 
   if (par->save_pb)
     {
-	  char buf[32];
-	  snprintf(buf, 32, par->save_fn, seq);
+	  char buf[PATH_MAX];
+	  snprintf(buf, PATH_MAX, par->save_fn, seq);
       if (glp_write_lp (lp, NULL, buf) != 0)
         {
           glpk_warn("__glpk__: unable to write problem");
