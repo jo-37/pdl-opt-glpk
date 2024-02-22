@@ -27,7 +27,6 @@ my %WriteMakefileArgs = (
     PREREQ_PM => {
         'PDL'              => '2.085',
     },
-    # MAN3PODS => { "lib/PDL/Opt/GLPK.pod" => "blib/man3/PDL::Opt::GLPK.3pm" },
     C => ['GLPK.c', 'glpk_aio.c'],
     OBJECT => '$(O_FILES)',
     LIBS => [' -lm -lglpk '],
@@ -35,7 +34,20 @@ my %WriteMakefileArgs = (
         "lib/PDL/Opt/GLPK.pod" => '$(INST_LIBDIR)/GLPK.pod',
         "GLPK.pm" => '$(INST_LIBDIR)/GLPK.pm',
     },
-    #PMLIBDIRS => ['lib', '$(BASEEXT)'],
+    META_MERGE => {
+        "meta-spec" => { version => 2 },
+        resources => {
+            bugtracker => {
+                web => 'https://github.com/jo-37/pdl-opt-glpk/issues',
+            },
+            repository => {
+                type => 'git',
+                url => 'git://github.com/jo-37/pdl-opt-glpk.git',
+                web => 'https://github.com/jo-37/pdl-opt-glpk.git',
+            },
+        },
+    },
+
 );
 #$WriteMakefileArgs{PM}{"lib/PDL/Opt/GLPK.pod"}  =
 #    '$(INST_LIBDIR)/GLPK.pod';
