@@ -23,7 +23,8 @@ int glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
       double *a, double *b, int *ctype, int *freeLB, double *lb,
       int *freeUB, double *ub, int *vartype, int isMIP,
 	  const control_params *par, double *xmin, double *fmin, int *status,
-      double *lambda, double *redcosts, double *time, int seq);
+      double *lambda, double *redcosts, double *time,
+	  void (*glpk_warn)(const char *,...), int seq);
 
 static const char *glpk_err[] = {
 	"glpk: no error",
@@ -48,9 +49,6 @@ static const char *glpk_err[] = {
 	"glpk: result out of range",
 };
 
-void glpk_warn(const char *msg) {
-	warn(msg);
-}
 EOD
 
 pp_addpm({At => 'Top'}, <<'EOD');
@@ -196,6 +194,7 @@ pp_def('glpk',
 			int nz = $SIZE(nz) - 1;
 			control_params par;
 			double time;
+			void (*glpk_warn)(const char *,...) = warn;
 
 			HV *param = (HV*) SvRV($COMP(param));
 
@@ -267,7 +266,7 @@ pp_def('glpk',
 				errnum = glpk($sense(), m, n, $P(c), nz, $P(rn), $P(cn),
 					$P(a), $P(b), $P(ctype), $P(freeLB), $P(lb), $P(freeUB),
 					$P(ub), $P(vartype), isMIP, &par, $P(xopt), $P(fopt),
-					$P(status), $P(lambda), $P(redcosts), &time, seq++);
+					$P(status), $P(lambda), $P(redcosts), &time, warn, seq++);
 				
 				if (errnum) {
 					PDL_err.error = PDL_EUSERERROR;

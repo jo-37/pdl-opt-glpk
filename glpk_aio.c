@@ -39,7 +39,8 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
       double *a, double *b, int *ctype, int *freeLB, double *lb,
       int *freeUB, double *ub, int *vartype, int isMIP,
 	  const control_params *par, double *xmin, double *fmin, int *status,
-      double *lambda, double *redcosts, double *time, int seq)
+      double *lambda, double *redcosts, double *time,
+	  void (*glpk_warn)(const char *,...), int seq)
 {
   int errnum = 0;
 

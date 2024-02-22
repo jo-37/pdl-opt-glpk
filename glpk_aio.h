@@ -27,14 +27,4 @@ typedef struct control_params
   const char *save_fn;
 } control_params;
 
-/*
-struct extra_parms {
-	int scale;
-	int lpsolver;
-	int save_pb;
-	char *save_fn;
-};
-*/
-
-void glpk_warn(const char *msg);
 #endif
