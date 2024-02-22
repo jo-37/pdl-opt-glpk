@@ -15,7 +15,6 @@ my $w2 = $w1->copy;
 $w2->slice('0') += 1;
 my $w = $w1->glue(1, $w2);
 my $a = PDL::CCS::Nd->newFromWhich($w, ones($n)->append(-ones($n)));
-say $a;
 my $b = ones $n;
 my $c = ones double, $m;
 my $lb = zeroes($m);
