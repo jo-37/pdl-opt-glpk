@@ -12,13 +12,21 @@ pp_addhdr(<<'EOD');
 #include <glpk.h>
 #include "glpk_aio.h"
 
+#define PAR_INT IV
+#define PAR_DOUBLE NV
+#define PAR_STR PV_nolen 
+#define PAR_T(t) Sv ## t
+
 #define SETPARM(sv, key, struc, type, default) { \
 		SV **entry = hv_fetch(sv, #key, strlen(#key), 0); \
 		struc.key = (entry != NULL && SvOK(*entry)) ? \
-			Sv ## type(*entry) : \
+			PAR_T(type) (*entry) : \
 			default; \
 	}
+
 typedef HV* param_t;
+
+
 
 int glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
       double *a, double *b, int *ctype, int *freeLB, double *lb,
@@ -198,55 +206,55 @@ pp_def('glpk',
 			void (*glpk_warn)(const char *,...) = warn;
 			param_t param = $COMP(param);
 
-			SETPARM(param, msglev, par, IV, 1);
+			SETPARM(param, msglev, par, PAR_INT, 1);
 			if (par.msglev < 0 || par.msglev > 4)
 				$CROAK("PARAM.msglev must be 0 (no output) or 1 (error and warning messages only [default]) or 2 (normal output) or 3 (full output)");
 
-			SETPARM(param, scale, par, IV, 16);
+			SETPARM(param, scale, par, PAR_INT, 16);
 			if (par.scale < 0 || par.scale > 128)
 				$CROAK("PARAM.scale must either be 128 (automatic selection of scaling options), or a bitwise or of: 1 (geometric mean scaling), 16 (equilibration scaling), 32 (round scale factors to power of two), 64 (skip if problem is well scaled");
 
-			SETPARM(param, dual, par, IV, 1);
+			SETPARM(param, dual, par, PAR_INT, 1);
 			if (par.dual < 1 || par.dual > 3)
 				$CROAK("PARAM.dual must be 1 (use two-phase primal simplex [default]) or 2 (use two-phase dual simplex) or 3 (use two-phase dual simplex, and if it fails, switch to the primal simplex)");
 
-			SETPARM(param, price, par, IV, 34);
+			SETPARM(param, price, par, PAR_INT, 34);
 			if (par.price != 17 && par.price != 34)
 				$CROAK("PARAM.price must be 17 (textbook pricing) or 34 (steepest edge pricing [default])");
 
-			SETPARM(param, itlim, par, IV, INT_MAX);
-			SETPARM(param, outfrq, par, IV, 200);
-			SETPARM(param, branch, par, IV, 4);
+			SETPARM(param, itlim, par, PAR_INT, INT_MAX);
+			SETPARM(param, outfrq, par, PAR_INT, 200);
+			SETPARM(param, branch, par, PAR_INT, 4);
 			if (par.branch < 1 || par.branch > 5)
 				$CROAK("PARAM.branch must be 1 (first fractional variable) or 2 (last fractional variable) or 3 (most fractional variable) or 4 (heuristic by Driebeck and Tomlin [default]) or 5 (hybrid pseudocost heuristic)");
 
-			SETPARM(param, btrack, par, IV, 4);
+			SETPARM(param, btrack, par, PAR_INT, 4);
 			if (par.btrack < 1 || par.btrack > 4)
 				$CROAK("PARAM.btrack must be 1 (depth first search) or 2 (breadth first search) or 3 (best local bound) or 4 (best projection heuristic [default]");
 
-			SETPARM(param, presol, par, IV, 1);
+			SETPARM(param, presol, par, PAR_INT, 1);
 			if (par.presol < 0 || par.presol > 1)
 				$CROAK("PARAM.presol must be 0 (do NOT use LP presolver) or 1 (use LP presolver [default])");
 
-			SETPARM(param, lpsolver, par, IV, 1);
+			SETPARM(param, lpsolver, par, PAR_INT, 1);
 			if (par.lpsolver < 1 || par.lpsolver > 2)
 				$CROAK("PARAM.lpsolver must be 1 (simplex method) or 2 (interior point method)");
 
-			SETPARM(param, rtest, par, IV, 34);
+			SETPARM(param, rtest, par, PAR_INT, 34);
 			if (par.rtest != 17 && par.rtest != 34)
 				$CROAK("PARAM.rtest must be 17 (standard ratio test) or 34 (Harris' two-pass ratio test [default])");
 
-			SETPARM(param, tmlim, par, IV, INT_MAX);
-			SETPARM(param, outdly, par, IV, 0);
-			SETPARM(param, save_pb, par, IV, 0);
-			SETPARM(param, save_fn, par, PV_nolen, "outpb.%d.lp");
-			SETPARM(param, tolbnd, par, NV, 1e-7);
-			SETPARM(param, toldj, par, NV, 1e-7);
-			SETPARM(param, tolpiv, par, NV, 1e-10);
-			SETPARM(param, objll, par, NV, INFINITY);
-			SETPARM(param, objul, par, NV, -INFINITY);
-			SETPARM(param, tolint, par, NV, 1e-5);
-			SETPARM(param, tolobj, par, NV, 1e-7);
+			SETPARM(param, tmlim, par, PAR_INT, INT_MAX);
+			SETPARM(param, outdly, par, PAR_INT, 0);
+			SETPARM(param, save_pb, par, PAR_INT, 0);
+			SETPARM(param, save_fn, par, PAR_STR, "outpb.%d.lp");
+			SETPARM(param, tolbnd, par, PAR_DOUBLE, 1e-7);
+			SETPARM(param, toldj, par, PAR_DOUBLE, 1e-7);
+			SETPARM(param, tolpiv, par, PAR_DOUBLE, 1e-10);
+			SETPARM(param, objll, par, PAR_DOUBLE, INFINITY);
+			SETPARM(param, objul, par, PAR_DOUBLE, -INFINITY);
+			SETPARM(param, tolint, par, PAR_DOUBLE, 1e-5);
+			SETPARM(param, tolobj, par, PAR_DOUBLE, 1e-7);
 
 
 			int seq = 0;
