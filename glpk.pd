@@ -18,6 +18,7 @@ pp_addhdr(<<'EOD');
 			Sv ## type(*entry) : \
 			default; \
 	}
+typedef HV* param_t;
 
 int glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
       double *a, double *b, int *ctype, int *freeLB, double *lb,
@@ -156,7 +157,7 @@ pp_def('glpk',
 			int [o]status();
 			double [o]lambda(n);
 			double [o]redcosts(n);',
-	OtherPars => 'SV *param;',
+	OtherPars => 'void *param;',
 	GenericTypes => ['D'],
 	PMCode => q{
 		sub PDL::Opt::GLPK::glpk {
@@ -195,8 +196,7 @@ pp_def('glpk',
 			control_params par;
 			double time;
 			void (*glpk_warn)(const char *,...) = warn;
-
-			HV *param = (HV*) SvRV($COMP(param));
+			param_t param = $COMP(param);
 
 			SETPARM(param, msglev, par, IV, 1);
 			if (par.msglev < 0 || par.msglev > 4)
