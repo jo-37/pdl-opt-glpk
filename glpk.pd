@@ -20,13 +20,11 @@ pp_addhdr(<<'EOD');
 #define SETPARM(sv, key, struc, type, default) { \
 		SV **entry = hv_fetch(sv, #key, strlen(#key), 0); \
 		struc.key = (entry != NULL && SvOK(*entry)) ? \
-			PAR_T(type) (*entry) : \
+			PAR_T(type)(*entry) : \
 			default; \
 	}
 
 typedef HV* param_t;
-
-
 
 int glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
       double *a, double *b, int *ctype, int *freeLB, double *lb,
