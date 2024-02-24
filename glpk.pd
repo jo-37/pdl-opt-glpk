@@ -145,6 +145,22 @@ pp_add_exported(qw(GLP_MIN GLP_MAX GLP_CV GLP_IV GLP_BV GLP_FR GLP_LO
 
 pp_bless('PDL::Opt::GLPK');
 
+pp_add_typemaps(string => <<'EOD');
+TYPEMAP: <<END_OF_TYPEMAP
+TYPEMAP
+param_t T_HVREF
+
+INPUT
+T_HVREF
+  $var = ($type)SvRV($arg)
+
+OUTPUT
+T_HVREF
+  sv_setsv((SV*)$arg, $var)
+
+END_OF_TYPMAP
+EOD
+
 pp_def('glpk',
 	Pars => 'double c(m);
 			int rn(nz);
@@ -163,7 +179,7 @@ pp_def('glpk',
 			int [o]status();
 			double [o]lambda(n);
 			double [o]redcosts(n);',
-	OtherPars => 'void *param;',
+	OtherPars => 'param_t param;',
 	GenericTypes => ['D'],
 	PMCode => q{
 		sub PDL::Opt::GLPK::glpk {
