@@ -1,4 +1,4 @@
-our $VERSION = '0.02_001';
+our $VERSION = '0.03';
 pp_setversion($VERSION);
 $VERSION = eval $VERSION;
 
