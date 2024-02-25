@@ -14,10 +14,10 @@ my $b = pdl([1, 1, 1]);
 my $c = pdl([1, 1, 1, 1]);
 my $lb = pdl([0, 0, 0, 0]);
 my $ub = pdl([4, 4, 4, 4]);
-# dims: 3, 2;
+# dims: 3, 2; broadcasting over dim 1
 my $ctype = pdl([[GLP_LO, GLP_LO, GLP_LO],[GLP_UP, GLP_UP, GLP_UP]]);
 my $vtype = (GLP_IV * ones(4));
-# dims: 1, 2;
+# dims: 1, 2; broadcasting over dims 0 and 1
 my $sense = pdl [[GLP_MAX], [GLP_MIN]];
 my $xopt = null;
 my $fopt = null;
