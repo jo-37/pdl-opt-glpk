@@ -7,7 +7,7 @@ use Devel::CheckLib qw(assert_lib);
 
 my @pack = (["glpk.pd",'GLPK','PDL::Opt::GLPK']);
 
-assert_lib(lib => 'glpkx', header => 'glpk.h');
+assert_lib(lib => 'glpk', header => 'glpk.h');
 
 my %WriteMakefileArgs = (
     pdlpp_stdargs(@pack),
