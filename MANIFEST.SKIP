@@ -1,6 +1,5 @@
 ^GLPK\.(xs|pm|c)$
 ^MANIFEST.*
-^CONTRIBUTING.md$
 ^PDL-Opt-GLPK-
 ^t/manifest.t
 ^Readme.md$
