@@ -148,15 +148,15 @@ pp_bless('PDL::Opt::GLPK');
 pp_add_typemaps(string => <<'EOD');
 TYPEMAP: <<END_OF_TYPEMAP
 TYPEMAP
-param_t T_HVREF
+param_t T_PARAM_T
 
 INPUT
-T_HVREF
+T_PARAM_T
   $var = ($type)SvRV($arg)
 
 OUTPUT
-T_HVREF
-  sv_setsv((SV*)$arg, $var)
+T_PARAM_T
+  sv_setsv($arg, newRV_inc((SV*) $var));
 
 END_OF_TYPMAP
 EOD
