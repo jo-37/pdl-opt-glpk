@@ -3,11 +3,11 @@ use strict;
 use warnings;
 use ExtUtils::MakeMaker;
 use PDL::Core::Dev;
-use Devel::CheckLib qw(check_lib_or_exit);
+use Devel::CheckLib qw(assert_lib);
 
 my @pack = (["glpk.pd",'GLPK','PDL::Opt::GLPK']);
 
-check_lib_or_exit(lib => 'glpk', header => 'glpk.h');
+assert_lib(lib => 'glpkx', header => 'glpk.h');
 
 my %WriteMakefileArgs = (
     pdlpp_stdargs(@pack),
@@ -49,8 +49,6 @@ my %WriteMakefileArgs = (
     },
 
 );
-#$WriteMakefileArgs{PM}{"lib/PDL/Opt/GLPK.pod"}  =
-#    '$(INST_LIBDIR)/GLPK.pod';
 
 # Compatibility with old versions of ExtUtils::MakeMaker
 unless (eval { ExtUtils::MakeMaker->VERSION('6.64'); 1 }) {
