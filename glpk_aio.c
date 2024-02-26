@@ -47,6 +47,9 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
   clock_t t_start = clock ();
 
   glp_prob *lp = glp_create_prob ();
+  char prob_name[32];
+  snprintf(prob_name, 32, "#%d", seq + 1);
+  glp_set_prob_name(lp, prob_name);
 
   //-- Set the sense of optimization
   glp_set_obj_dir (lp, sense);
