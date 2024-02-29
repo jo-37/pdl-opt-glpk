@@ -5,6 +5,7 @@
 ^Readme.md$
 ^\.git/
 ^\.gitignore$
+^\.github/
 ^blib/
 ^cover_db$
 ^Makefile$
