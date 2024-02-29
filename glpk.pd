@@ -154,10 +154,6 @@ INPUT
 T_PARAM_T
   $var = ($type)SvRV($arg)
 
-OUTPUT
-T_PARAM_T
-  sv_setsv($arg, newRV_inc((SV*) $var));
-
 END_OF_TYPMAP
 EOD
 
