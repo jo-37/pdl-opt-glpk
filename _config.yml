@@ -1,1 +1,3 @@
 theme: jekyll-theme-slate
+title: PDL::Opt::GLPK
+description: an interface to GLPK
