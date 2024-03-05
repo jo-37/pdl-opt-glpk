@@ -55,8 +55,7 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
   glp_set_obj_dir (lp, sense);
 
   glp_add_cols (lp, n);
-  int i;
-  for (i = 0; i < n; i++)
+  for (int i = 0; i < n; i++)
     {
       //-- Define type of the structural variables
       if (! freeLB[i] && ! freeUB[i])
@@ -89,7 +88,7 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
 
   glp_add_rows (lp, m);
 
-  for (i = 0; i < m; i++)
+  for (int i = 0; i < m; i++)
     {
       /* If the i-th row has no lower bound (types FR,UP), the
          correspondent parameter will be ignored.
@@ -195,13 +194,13 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
 
       if (isMIP)
         {
-          for (i = 0; i < n; i++)
+          for (int i = 0; i < n; i++)
             xmin[i] = glp_mip_col_val (lp, i+1);
         }
       else
         {
           /* Primal values */
-          for (i = 0; i < n; i++)
+          for (int i = 0; i < n; i++)
             {
               if (par->lpsolver == 1)
                 xmin[i] = glp_get_col_prim (lp, i+1);
@@ -210,7 +209,7 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
             }
 
           /* Dual values */
-          for (i = 0; i < m; i++)
+          for (int i = 0; i < m; i++)
             {
               if (par->lpsolver == 1)
                 lambda[i] = glp_get_row_dual (lp, i+1);
@@ -219,7 +218,7 @@ glpk (int sense, int n, int m, double *c, int nz, int *rn, int *cn,
             }
 
           /* Reduced costs */
-          for (i = 0; i < glp_get_num_cols (lp); i++)
+          for (int i = 0; i < glp_get_num_cols (lp); i++)
             {
               if (par->lpsolver == 1)
                 redcosts[i] = glp_get_col_dual (lp, i+1);
