@@ -48,10 +48,6 @@ my %WriteMakefileArgs = (
             },
         },
     },
-    CONFIGURE => sub {
-        print "configure called\n";
-        {}
-    },
 );
 
 # Compatibility with old versions of ExtUtils::MakeMaker
