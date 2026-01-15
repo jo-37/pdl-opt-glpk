@@ -1,5 +1,5 @@
 our
-$VERSION = '0.08';
+$VERSION = '0.08_01';
 pp_setversion($VERSION);
 $VERSION = eval $VERSION;
 
