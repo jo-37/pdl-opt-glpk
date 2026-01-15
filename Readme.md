@@ -7,7 +7,7 @@ PDL::Opt::GLPK - PDL interface to the GNU Linear Programming Kit
     use PDL;
     use PDL::Opt::GLPK;
 
-    glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLP_MAX,
+    glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, GLP_MAX,
            $xopt = null, $fopt = null, $status = null,
            $lambda = null, $redcosts = null, \%param);
 ```
@@ -426,27 +426,24 @@ to avoid a square matrix:
 ```
 The solution is straightforward:
 ```perl
-use PDL;
-use PDL::Opt::GLPK;
+ use PDL;
+ use PDL::Opt::GLPK;
 
-$a = pdl([[1, 1, 1, 1], [10, 4, 5, 1], [2, 2, 6, 1]]);
-$b = pdl([100, 600, 300]);
-$c = pdl([10, 6, 4, -1]);
-$lb = zeroes(4);
-$ub = inf(4);
-$ctype = pdl([GLP_UP, GLP_UP, GLP_UP]);
-$vtype = pdl([GLP_CV, GLP_CV, GLP_CV, GLP_CV]);
+ my $a = pdl([[1, 1, 1, 1], [10, 4, 5, 1], [2, 2, 6, 1]]);
+ my $b = pdl([100, 600, 300]);
+ my $c = pdl([10, 6, 4, -1]);
+ my $lb = zeroes(4);
+ my $ub = inf(4);
+ my $ctype = pdl([GLP_UP, GLP_UP, GLP_UP]);
+ my $vtype = pdl([GLP_CV, GLP_CV, GLP_CV, GLP_CV]);
+ glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, GLP_MAX,
+      my $xopt = null, my $fopt = null, my $status = null);
+ 
+ print "\$status = $status\n\$xopt = $xopt\n\$fopt = $fopt\n";
 
-glpk($c, $a, $b $lb, $ub, $ctype, $vtype, GLPX_MAX,
-   $xopt = null, $fopt = null, $status = null);
-
-# $xopt:
-# [
-#   [ 33.333333  66.666667      0          0]
-# ]
-
-# $fopt:
-# [ 733.33333]
+ # $status = 5
+ # $xopt = [33.3333333333333 66.6666666666667 0 0]
+ # $fopt = 733.333333333333
 ```
 
 ## Broadcasting
@@ -480,49 +477,53 @@ The base problem:
 Looking for the objective function's minimum _and_ maximum with both
 lower _and_ upper bound constraints:
 ```perl
-use PDL;
-use PDL::Opt::GLPK;
+ use PDL;
+ use PDL::Opt::GLPK;
 
-my $a = pdl(
-    [[1, -1, 0, 0],
-     [0, 1, -1, 0],
-     [0, 0, 1, -1]]);
-my $b = pdl([1, 1, 1]);
-my $c = pdl([1, 1, 1, 1]);
-my $lb = pdl([0, 0, 0, 0]);
-my $ub = pdl([4, 4, 4, 4]);
+ my $a = pdl(
+     [[1, -1, 0, 0],
+      [0, 1, -1, 0],
+      [0, 0, 1, -1]]);
+ my $b = pdl([1, 1, 1]);
+ my $c = pdl([1, 1, 1, 1]);
+ my $lb = pdl([0, 0, 0, 0]);
+ my $ub = pdl([4, 4, 4, 4]);
+ # dims: 3, 2 - loop over lower and upper bounds
+ my $ctype = pdl([[GLP_LO, GLP_LO, GLP_LO],[GLP_UP, GLP_UP, GLP_UP]]);
+ my $vtype = (GLP_IV * ones(4));
+ # dims: 1, 2 - extra loop over min and max
+ my $sense = pdl [[GLP_MAX], [GLP_MIN]];
+ my $xopt = null;
+ my $fopt = null;
+ my $status = null;
 
-# dims: 3, 2 - loop over lower and upper bounds
-my $ctype = pdl([[GLP_LO, GLP_LO, GLP_LO],[GLP_UP, GLP_UP, GLP_UP]]);
+ glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt, $status);
 
-my $vtype = (GLP_IV * ones(4));
+ print "\$status = $status\n\$xopt = $xopt\n\$fopt = $fopt\n";
 
-# dims: 1, 2 - extra loop over min and max
-my $sense = pdl [[GLPX_MAX], [GLPX_MIN]];
-
-my $xopt = null;
-my $fopt = null;
-my $status = null;
-
-glpk($c, $a, $b, $lb, $ub, $ctype, $vtype, $sense, $xopt, $fopt, $status);
-
-# $xopt:
-# [
-#  [
-#   [4 3 2 1]
-#   [4 4 4 4]
-#  ]
-#  [
-#   [3 2 1 0]
-#   [0 0 0 0]
-#  ]
-# ]
-#
-# $fopt:
-# [
-#  [10 16]
-#  [ 6  0]
-# ]
+ # $status = 
+ # [
+ #  [5 5]
+ #  [5 5]
+ # ]
+ # 
+ # $xopt = 
+ # [
+ #  [
+ #   [4 3 2 1]
+ #   [4 4 4 4]
+ #  ]
+ #  [
+ #   [3 2 1 0]
+ #   [0 0 0 0]
+ #  ]
+ # ]
+ # 
+ # $fopt = 
+ # [
+ #  [10 16]
+ #  [ 6  0]
+ # ]
 ```
 
 ## Specifying parameters
